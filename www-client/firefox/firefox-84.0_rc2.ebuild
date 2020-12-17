@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-83-patches-05.tar.xz"
+FIREFOX_PATCHSET="firefox-84-patches-02.tar.xz"
 
 LLVM_MAX_SLOT=11
 
@@ -73,9 +73,9 @@ BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
 	>=dev-util/cbindgen-0.15.0
-	>=net-libs/nodejs-10.19.0
+	>=net-libs/nodejs-10.22.1
 	virtual/pkgconfig
-	>=virtual/rust-1.43.0
+	>=virtual/rust-1.44.0
 	|| (
 		(
 			sys-devel/clang:11
@@ -113,7 +113,7 @@ BDEPEND="${PYTHON_DEPS}
 	)"
 
 CDEPEND="
-	>=dev-libs/nss-3.58
+	>=dev-libs/nss-3.59
 	>=dev-libs/nspr-4.29
 	dev-libs/atk
 	dev-libs/expat
@@ -921,8 +921,12 @@ src_configure() {
 	#end of me
 
 
-	# Build system requires xargs but is unable to find it
-	mozconfig_add_options_mk 'Gentoo default' "XARGS=${EPREFIX}/usr/bin/xargs"
+	## Build system requires xargs but is unable to find it
+	#mozconfig_add_options_mk 'Gentoo default' "XARGS=${EPREFIX}/usr/bin/xargs"
+	# Portage sets XARGS environment variable to "xargs -r" by default which
+	# breaks build system's check_prog() function which doesn't support arguments
+	unset XARGS
+
 
 	# Set build dir
 	mozconfig_add_options_mk 'Gentoo default' "MOZ_OBJDIR=${BUILD_DIR}"
@@ -969,6 +973,10 @@ src_compile() {
 		gnome2_environment_reset
 
 		addpredict /root
+
+		# During PGO, build system will re-run configure.
+		# See comment in src_configure for details.
+		unset XARGS
 	fi
 
 	local -x GDK_BACKEND=x11
@@ -997,6 +1005,7 @@ src_install() {
 
 	# Install policy (currently only used to disable application updates)
 	insinto "${MOZILLA_FIVE_HOME}/distribution"
+	newins "${FILESDIR}"/distribution.ini distribution.ini
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences
