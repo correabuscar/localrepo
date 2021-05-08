@@ -1,0 +1,12 @@
+this applies the same to dev-lang/rust too:
+
+the highest package version seen is limited(masked) by /etc/portage/package.mask/firefox
+that's why it doesn't pick a higher version from "gentoo" repo instead!
+wish that 'priority' thing would work (mentioned in: man portage) as I thought
+it would, but two package names with diff. version are considered different
+packages, ergo, prio is irrelevant for this case! only affects same version
+package: so 'localrepo' is picked first(higher prio) above 'gentoo' which is
+what we want because same package(&ver) existing in 'localrepo' compared to
+'gentoo' means it's a modified version.
+
+
