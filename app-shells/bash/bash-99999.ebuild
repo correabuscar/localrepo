@@ -45,6 +45,7 @@ PLEVEL=0
 
 if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/bash.git"
+	[[ ${PV} == 9999 ]] && EGIT_BRANCH=master
 	[[ ${PV} == 99999 ]] && EGIT_BRANCH=devel
 	REQUIRED_USE="readline? ( bundled-readline )"
 elif [[ ${PV} == *_alpha* || ${PV} == *_beta* || ${PV} == *_rc* ]]; then

@@ -367,7 +367,7 @@ src_configure() {
 		src-tarball = false
 		compression-formats = ["gz"]
 		#nvm patch not made! //keep 'gz' here so that 0600_fabricate_neutering_try2_just_tar_not_gz_or_xz_for_rust_1_52_0.patch applies neatly
-		#TODO: try compression-formats 'cat' or just make sure it doesn't use any! However list must not be empty! as per https://github.com/rust-lang/rust/blob/abf3ec5b3353be973b18269fcdda76a59743f235/config.toml.example#L696
+		#TODO: try compression-formats 'cat'(not valid!) or just make sure it doesn't use any! However list must not be empty! as per https://github.com/rust-lang/rust/blob/abf3ec5b3353be973b18269fcdda76a59743f235/config.toml.example#L696 see: https://github.com/rust-lang/rust-installer/issues/110
 		#missing-tools = false
 		#^ this won't work (either with =false or =true), it fails to compile miri even though USE=-miri due to /var/db/repos/gentoo/profiles/base/package.use.mask:30 so it has to be =true
 	_EOF_

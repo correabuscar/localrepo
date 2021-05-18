@@ -613,9 +613,10 @@ src_configure() {
 	export MOZILLA_OFFICIAL=1
 
 	#TODO: why did I do these before the other settings? wouldn't they potentially get overridden?!
-	mozconfig_add_options_ac 'gotchas' \
-		--disable-more-deterministic
+	#mozconfig_add_options_ac 'gotchas' \
+	#	--disable-more-deterministic
 	#^ because 84 failed tests(and Object's keys order is sorted!ie. it breaks the web): https://bugs.gentoo.org/717374 and https://bugzilla.mozilla.org/show_bug.cgi?id=1542951
+	#08 may 2021: www-client/firefox-88.0.1:  0:01.89 mozbuild.configure.options.InvalidOptionError: Unknown option: --disable-more-deterministic
 
 	mozconfig_add_options_ac 'just making sure' \
 		--disable-artifact-builds
