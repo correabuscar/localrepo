@@ -48,3 +48,7 @@ src_install() {
 	#insinto /usr/lib/firefox/defaults/pref/
 	#doins local-settings.js
 }
+
+pkg_postinst() {
+	"${ROOT}/etc/dnsmasq.d/dnsmasq_noPTR_generator.bash" "nodiff"
+}

@@ -72,6 +72,10 @@ user_pref("geo.wifi.uri", "https://geo.wifi.uri.firefox_blocked_domain.tld/geolo
 // * enable logging to the console (defaults to false) ***/
 user_pref("geo.wifi.logging.enabled", true); //mod
 
+user_pref("geo.provider.network.url","https://www.googleapis.com.firefox_blocked_domain.tld/"); // mod from: "https://www.googleapis.com/geolocation/v1/geolocate?key=%GOOGLE_LOCATION_SERVICE_API_KEY%"
+user_pref("browser.geolocation.warning.infoURL", "https://www.mozilla.org.firefox_blocked_domain.tld/%LOCALE%/firefox/geolocation/"); // mod from: "https://www.mozilla.org/%LOCALE%/firefox/geolocation/"
+user_pref("browser.region.network.url","https://location.services.mozilla.com.firefox_blocked_domain.tld/v1/country?key=%MOZILLA_API_KEY%"); // mod from: "https://location.services.mozilla.com/v1/country?key=%MOZILLA_API_KEY%"
+
 // PREF: Disable raw TCP socket support (mozTCPSocket)
 // https://trac.torproject.org/projects/tor/ticket/18863
 // https://www.mozilla.org/en-US/security/advisories/mfsa2015-97/
@@ -547,8 +551,8 @@ user_pref("plugin.sessionPermissionNow.intervalInMinutes", 0);
 // https://blog.mozilla.org/addons/how-to-turn-off-add-on-updates/
 /* 0301b: disable auto-CHECKING for extension and theme updates ***/
 user_pref("extensions.update.enabled",				false);//
-user_pref("extensions.update.url", "https://extensions.update.url.firefox_blocked_domain.tld"); //default value: "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%"
-user_pref("extensions.update.background.url", "https://extensions.update.background.url.firefox_blocked_domain.tld"); //default value: "https://versioncheck-bg.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%"
+user_pref("extensions.update.url", "https://extensions.update.url.firefox_blocked_domain.tld/"); //default value: "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%"
+user_pref("extensions.update.background.url", "https://extensions.update.background.url.firefox_blocked_domain.tld/"); //default value: "https://versioncheck-bg.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%CURRENT_APP_VERSION%&updateType=%UPDATE_TYPE%&compatMode=%COMPATIBILITY_MODE%"
 
 // PREF: Enable add-on and certificate blocklists (OneCRL) from Mozilla
 // https://wiki.mozilla.org/Blocklisting
@@ -582,7 +586,7 @@ user_pref("extensions.blocklist.url",				"https://extensions.blocklist.url.firef
 // https://dxr.mozilla.org/mozilla-central/source/toolkit/mozapps/extensions/AddonManager.jsm#1248-1257
 // NOTICE: Disabling system add-on updates prevents Mozilla from "hotfixing" your browser to patch critical problems (one possible use case from the documentation)
 user_pref("extensions.systemAddon.update.enabled",             false);
-user_pref("extensions.systemAddon.update.url", "https://extensions.systemAddon.update.url.firefox_blocked_domain.tld"); // default value: "https://aus5.mozilla.org/update/3/SystemAddons/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml"
+user_pref("extensions.systemAddon.update.url", "https://extensions.systemAddon.update.url.firefox_blocked_domain.tld/"); // default value: "https://aus5.mozilla.org/update/3/SystemAddons/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml"
 
 
 /******************************************************************************
@@ -826,8 +830,8 @@ user_pref("browser.selfsupport.url",				"");//can't find where this is set anywh
 //https://github.com/mozilla/normandy
 user_pref("app.normandy.enabled", false); //default: true
 user_pref("app.normandy.dev_mode", false); //default: false
-user_pref("app.normandy.api_url", "https://app.normandy.api_url.firefox_blocked_domain.tld"); // default value: "https://normandy.cdn.mozilla.net/api/v1"
-user_pref("app.normandy.shieldLearnMoreUrl", "https://app.normandy.shieldLearnMoreUrl.firefox_blocked_domain.tld"); //default value: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/shield"
+user_pref("app.normandy.api_url", "https://app.normandy.api_url.firefox_blocked_domain.tld/"); // default value: "https://normandy.cdn.mozilla.net/api/v1"
+user_pref("app.normandy.shieldLearnMoreUrl", "https://app.normandy.shieldLearnMoreUrl.firefox_blocked_domain.tld/"); //default value: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/shield"
 user_pref("features.normandy-remote-settings.enabled", false); //default: false
 // PREF: Disable SHIELD
 // https://support.mozilla.org/en-US/kb/shield
@@ -1692,10 +1696,10 @@ user_pref("app.productInfo.baseURL", "https://app.productInfo.baseURL.firefox_bl
 user_pref("app.update.checkInstallTime.days", 200);
 user_pref("app.update.url.details", "https://app.update.url.details.firefox_blocked_domain.tld/app.update.url.details");//hmm same default value: "https://nightly.mozilla.org"
 user_pref("app.update.url.manual", "https://app.update.url.manual.firefox_blocked_domain.tld/app.update.url.manual");//one of the default values: "https://nightly.mozilla.org"
-user_pref("app.update.url","https://app.update.url.firefox_blocked_domain.tld");//default value: "https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml"
+user_pref("app.update.url","https://app.update.url.firefox_blocked_domain.tld/");//default value: "https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml"
 user_pref("apz.record_checkerboarding", false);
 user_pref("browser.chrome.errorReporter.enabled", false);
-user_pref("browser.chrome.errorReporter.submitUrl", "https://browser.chrome.errorReporter.submitUrl.firefox_blocked_domain.tld");//default value: "https://sentry.prod.mozaws.net/api/339/store/"
+user_pref("browser.chrome.errorReporter.submitUrl", "https://browser.chrome.errorReporter.submitUrl.firefox_blocked_domain.tld/");//default value: "https://sentry.prod.mozaws.net/api/339/store/"
 
 /* 2654: disable "open with" in download dialog [FF50+]
  * This is very useful to enable when the browser is sandboxed (e.g. via AppArmor)
@@ -1732,17 +1736,17 @@ user_pref("browser.safebrowsing.downloads.remote.block_dangerous", false);
 user_pref("browser.safebrowsing.downloads.remote.block_dangerous_host", false);
 
 user_pref("browser.safebrowsing.downloads.remote.timeout_ms", 100); //was 1000
-user_pref("browser.safebrowsing.downloads.remote.url", "https://browser.safebrowsing.downloads.remote.url.firefox_blocked_domain.tld");
-user_pref("browser.safebrowsing.provider.google4.advisoryURL", "https://browser.safebrowsing.provider.google4.advisoryURL.firefox_blocked_domain.tld");
+user_pref("browser.safebrowsing.downloads.remote.url", "https://browser.safebrowsing.downloads.remote.url.firefox_blocked_domain.tld/");
+user_pref("browser.safebrowsing.provider.google4.advisoryURL", "https://browser.safebrowsing.provider.google4.advisoryURL.firefox_blocked_domain.tld/");
 user_pref("browser.safebrowsing.provider.google4.lists", "");
-user_pref("browser.safebrowsing.provider.google4.reportMalwareMistakeURL", "https://browser.safebrowsing.provider.google4.reportMalwareMistakeURL.firefox_blocked_domain.tld");
-user_pref("browser.safebrowsing.provider.google4.reportPhishMistakeURL", "https://browser.safebrowsing.provider.google4.reportPhishMistakeURL.firefox_blocked_domain.tld");
-user_pref("browser.safebrowsing.provider.google4.reportURL", "https://browser.safebrowsing.provider.google4.reportURL.firefox_blocked_domain.tld");
+user_pref("browser.safebrowsing.provider.google4.reportMalwareMistakeURL", "https://browser.safebrowsing.provider.google4.reportMalwareMistakeURL.firefox_blocked_domain.tld/");
+user_pref("browser.safebrowsing.provider.google4.reportPhishMistakeURL", "https://browser.safebrowsing.provider.google4.reportPhishMistakeURL.firefox_blocked_domain.tld/");
+user_pref("browser.safebrowsing.provider.google4.reportURL", "https://browser.safebrowsing.provider.google4.reportURL.firefox_blocked_domain.tld/");
 /* 0417: disable data sharing [FF58+] ***/
 user_pref("browser.safebrowsing.provider.google4.dataSharing.enabled", false);
-user_pref("browser.safebrowsing.provider.google4.dataSharingURL", "https://browser.safebrowsing.provider.google4.dataSharingURL.firefox_blocked_domain.tld");
+user_pref("browser.safebrowsing.provider.google4.dataSharingURL", "https://browser.safebrowsing.provider.google4.dataSharingURL.firefox_blocked_domain.tld/");
 
-user_pref("browser.safebrowsing.provider.google.advisoryURL", "https://browser.safebrowsing.provider.google.advisoryURL.firefox_blocked_domain.tld");
+user_pref("browser.safebrowsing.provider.google.advisoryURL", "https://browser.safebrowsing.provider.google.advisoryURL.firefox_blocked_domain.tld/");
 user_pref("browser.safebrowsing.provider.google.lists", "");//default value: "goog-badbinurl-shavar,goog-downloadwhite-digest256,goog-phish-shavar,googpub-phish-shavar,goog-malware-shavar,goog-unwanted-shavar"
 user_pref("browser.safebrowsing.provider.google.reportMalwareMistakeURL", "https://browser.safebrowsing.provider.google.reportMalwareMistakeURL.firefox_blocked_domain.tld/browser.safebrowsing.provider.google.reportMalwareMistakeURL");//default value: "https://%LOCALE%.malware-error.mozilla.com/?hl=%LOCALE%&url="
 user_pref("browser.safebrowsing.provider.google.reportPhishMistakeURL", "https://browser.safebrowsing.provider.google.reportPhishMistakeURL.firefox_blocked_domain.tld/browser.safebrowsing.provider.google.reportPhishMistakeURL");//default value: "https://%LOCALE%.phish-error.mozilla.com/?hl=%LOCALE%&url="
@@ -1750,9 +1754,9 @@ user_pref("browser.safebrowsing.provider.google.reportURL", "https://browser.saf
 
 /* 0413: disable Google safebrowsing updates ***/
 user_pref("browser.safebrowsing.provider.google.updateURL", "https://browser.safebrowsing.provider.google.updateURL.firefox_blocked_domain.tld/browser.safebrowsing.provider.google.updateURL");//default value: "https://safebrowsing.google.com/safebrowsing/downloads?client=SAFEBROWSING_ID&appver=%MAJOR_VERSION%&pver=2.2&key=%GOOGLE_API_KEY%"
-user_pref("browser.safebrowsing.provider.google.gethashURL", "https://browser.safebrowsing.provider.google.gethashURL.firefox_blocked_domain.tld");
-user_pref("browser.safebrowsing.provider.google4.updateURL", "https://browser.safebrowsing.provider.google4.updateURL.firefox_blocked_domain.tld");
-user_pref("browser.safebrowsing.provider.google4.gethashURL", "https://browser.safebrowsing.provider.google4.gethashURL.firefox_blocked_domain.tld");
+user_pref("browser.safebrowsing.provider.google.gethashURL", "https://browser.safebrowsing.provider.google.gethashURL.firefox_blocked_domain.tld/");
+user_pref("browser.safebrowsing.provider.google4.updateURL", "https://browser.safebrowsing.provider.google4.updateURL.firefox_blocked_domain.tld/");
+user_pref("browser.safebrowsing.provider.google4.gethashURL", "https://browser.safebrowsing.provider.google4.gethashURL.firefox_blocked_domain.tld/");
 
 user_pref("browser.safebrowsing.reportPhishURL", "https://browser.safebrowsing.reportPhishURL.firefox_blocked_domain.tld/browser.safebrowsing.reportPhishURL");//default value: "https://%LOCALE%.phish-report.mozilla.com/?hl=%LOCALE%&url="
 user_pref("browser.search.defaultenginename", "Searx");//was actually set to Google(modified by me to DuckDuckGo before!) in browser/locales/en-US/chrome/browser-region/region.properties 
@@ -1873,9 +1877,9 @@ user_pref("geo.wifi.url", "https://geo.wifi.url.firefox_blocked_domain.tld/geolo
 user_pref("identity.fxaccounts.remote.oauth.uri", "https://identity.fxaccounts.remote.oauth.uri.firefox_blocked_domain.tld/fxaccounts/oauth");//default value: "https://oauth.accounts.firefox.com/v1"
 user_pref("identity.fxaccounts.remote.profile.uri", "https://identity.fxaccounts.remote.profile.uri.firefox_blocked_domain.tld/fxaccounts/v1");//default value: "https://profile.accounts.firefox.com/v1"
 user_pref("identity.fxaccounts.remote.root", "https://identity.fxaccounts.remote.root.firefox_blocked_domain.tld/fxaccounts/"); //default value: "https://accounts.firefox.com/"
-user_pref("identity.fxaccounts.auth.uri", "https://identity.fxaccounts.auth.uri.firefox_blocked_domain.tld"); // default value: "https://api.accounts.firefox.com/v1"
-user_pref("browser.newtabpage.activity-stream.fxaccounts.endpoint", "https://browser.newtabpage.activity-stream.fxaccounts.endpoint.firefox_blocked_domain.tld"); // default value: "https://accounts.firefox.com/"
-user_pref("identity.fxaccounts.remote.pairing.uri", "wss://channelserver.services.mozilla.com.firefox_blocked_domain.tld"); // default value: "wss://channelserver.services.mozilla.com"
+user_pref("identity.fxaccounts.auth.uri", "https://identity.fxaccounts.auth.uri.firefox_blocked_domain.tld/"); // default value: "https://api.accounts.firefox.com/v1"
+user_pref("browser.newtabpage.activity-stream.fxaccounts.endpoint", "https://browser.newtabpage.activity-stream.fxaccounts.endpoint.firefox_blocked_domain.tld/"); // default value: "https://accounts.firefox.com/"
+user_pref("identity.fxaccounts.remote.pairing.uri", "wss://channelserver.services.mozilla.com.firefox_blocked_domain.tld/"); // default value: "wss://channelserver.services.mozilla.com"
 user_pref("identity.mobilepromo.android", "https://identity.mobilepromo.android.firefox_blocked_domain.tld/android");//default value: "https://www.mozilla.org/firefox/android/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_campaign="
 user_pref("identity.mobilepromo.ios", "https://identity.mobilepromo.ios.firefox_blocked_domain.tld/ios");//default value: "https://www.mozilla.org/firefox/ios/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_campaign="
 user_pref("identity.sync.tokenserver.uri", "https://identity.sync.tokenserver.uri.firefox_blocked_domain.tld/blah"); //default value: "https://token.services.mozilla.com/1.0/sync/1.5"
@@ -1985,7 +1989,7 @@ user_pref("toolkit.telemetry.newProfilePing.enabled", false);
 user_pref("toolkit.telemetry.shutdownPingSender.enabled", false);
 user_pref("toolkit.telemetry.shutdownPingSender.enabledFirstSession", false);
 user_pref("toolkit.telemetry.updatePing.enabled", false);
-user_pref("toolkit.telemetry.server", "https://toolkit.telemetry.server.firefox_blocked_domain.tld");//hopefully no error if empty? should I use localhost? default value: "https://incoming.telemetry.mozilla.org"
+user_pref("toolkit.telemetry.server", "https://toolkit.telemetry.server.firefox_blocked_domain.tld/");//hopefully no error if empty? should I use localhost? default value: "https://incoming.telemetry.mozilla.org"
 //user_pref("toolkit.telemetry.server", "data:,");//in ghacks-user.js/user.js
 user_pref("urlclassifier.downloadAllowTable", "");
 user_pref("urlclassifier.downloadBlockTable", "");
@@ -2171,10 +2175,11 @@ user_pref("identity.fxaccounts.toolbar.enabled", false); //default: true
 user_pref("app.update.doorhanger", false); //default: true
 
 
-user_pref("app.support.baseURL", "https://app.support.baseURL.firefox_blocked_domain.tld"); //default value: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/"
+user_pref("app.support.baseURL", "https://app.support.baseURL.firefox_blocked_domain.tld/"); //default value: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/"
+//WARNING: all urls must end with / or else you can get this hostname lookup: Jun  7 05:29:17 dnsmasq[13933]: 63 127.0.0.1/50998 query[A] app.support.baseurl.firefox_blocked_domain.tldfirefox-help from 127.0.0.1
 
 user_pref("browser.contentblocking.reportBreakage.enabled", false); //default: true
-user_pref("browser.contentblocking.reportBreakage.url", "https://browser.contentblocking.reportBreakage.url.firefox_blocked_domain.tld"); //default value: "https://tracking-protection-issues.herokuapp.com/new"
+user_pref("browser.contentblocking.reportBreakage.url", "https://browser.contentblocking.reportBreakage.url.firefox_blocked_domain.tld/"); //default value: "https://tracking-protection-issues.herokuapp.com/new"
 
 //browser.dictionaries.download.url https://addons.mozilla.org/%LOCALE%/firefox/language-tools/
 
