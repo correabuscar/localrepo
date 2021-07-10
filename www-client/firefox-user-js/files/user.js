@@ -2806,5 +2806,7 @@ user_pref("browser.urlbar.hideGoButton",        false); //mod // from /var/db/re
 
 user_pref("browser.EULA.override",              true); // from /var/db/repos/localrepo/www-client/firefox/files/gentoo-default-prefs.js
 
+user_pref("fission.autostart",              true); // https://www.grc.com/sn/sn-820.txt
+
 //XXX: keep this last: inspired from https://github.com/ghacksuserjs/ghacks-user.js/blame/6ee25c2bf55dd86f4bdcb179496ea7203049a85a/user.js#L2111-L2112
 user_pref("_user.js", "Successfully finalized! rev.1");
