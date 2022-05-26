@@ -6,6 +6,7 @@
 // XXX: in the pref(key,val) thing, only keys, and string vals should be in "", vals that are bools and integers should not be in quotes!
 //oldXXX: this is the first new commit since this user.js file was cloned, https://github.com/pyllyukko/user.js/commit/d6ac49a531b58c8ff2e85a727fd154d2ecaf73bd#diff-b00df6cb4137c00991376cd319d35348
 //oldXXX: now updated to latest commit which currently(05.Mar.2019) is a4d121bf89fda02fe1510dbdd14ae55890ef4d2c of Date:   Sat Feb 9 10:07:44 2019 +0200 , by manually applying changes shown via $ git diff d6ac49a531b58c8ff2e85a727fd154d2ecaf73bd user.js
+//XXX: https://github.com/arkenfox/user.js is the new version of the old https://github.com/ghacksuserjs/ghacks-user.js.git
 //XXX: also added prefs from a different repo: https://github.com/ghacksuserjs/ghacks-user.js.git commit 3c4b312cc7f765e05440e6f5f8a9840599d23567 (HEAD -> master, origin/master, origin/HEAD), New: now updated to commit: 2fcec590b41d21943a7dee8a57c0f575999715d9
 //XXX: updated to current latest 29nov2020 commit 0c139bcacbe0ac7008172c34b6f0f2fb6fb4743a ie. https://raw.githubusercontent.com/pyllyukko/user.js/0c139bcacbe0ac7008172c34b6f0f2fb6fb4743a/user.js
 /******************************************************************************
@@ -2471,7 +2472,8 @@ user_pref("dom.popup_allowed_events", "click dblclick");
  * [1] https://developer.mozilla.org/docs/Web/API/Intersection_Observer_API
  * [2] https://w3c.github.io/IntersectionObserver/
  * [3] https://bugzilla.mozilla.org/1243846 ***/
-user_pref("dom.IntersectionObserver.enabled", false);
+user_pref("dom.IntersectionObserver.enabled", true);
+// do not disable this anymore, was 'false' but it breaks docs.github.com and the contents of F12 and ctrl+shift+j (the latter one doesn't bring up the window anymore maybe it's something else broken, either when false or true on this setting, so must be smth else)
 
 /* 2427: disable Shared Memory (Spectre mitigation)
  * [1] https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md

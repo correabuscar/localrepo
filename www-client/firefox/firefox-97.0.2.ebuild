@@ -771,6 +771,11 @@ src_configure() {
 	mozconfig_add_options_ac 'from old mozconfig' --disable-update-channel
 
 
+	    #on 97.0.2, 08march2022 the following options don't exist anymore:
+		#'--enable-extensions=default,-skipgnomevfs,-skipgio' \ # 0:01.62 mozbuild.configure.options.InvalidOptionError: Unknown option: --enable-extensions
+		#--disable-tasktracer \
+		--enable-xul \
+
 	mozconfig_add_options_ac 'from old mozconfig' \
 		--disable-valgrind \
 		--disable-jprof \
@@ -785,19 +790,16 @@ src_configure() {
 		--enable-ffmpeg \
 		--enable-fmp4 \
 		--disable-system-extension-dirs \
-		'--enable-extensions=default,-skipgnomevfs,-skipgio' \
 		--disable-verify-mar \
 		--disable-parental-controls \
 		--enable-sandbox \
 		--disable-logrefcnt \
 		--disable-dump-painting \
-		--disable-tasktracer \
 		--disable-stdcxx-compat \
 		--disable-startupcache \
 		--disable-webspeech \
 		--disable-synth-speechd \
 		--disable-webspeechtestbackend \
-		--enable-xul \
 		--disable-tests \
 		--disable-vtune
 
@@ -1072,8 +1074,15 @@ src_configure() {
 	export -n MOZ_TELEMETRY_ON_BY_DEFAULT
 	unset MOZ_TELEMETRY_ON_BY_DEFAULT
 
-	export MOZ_ADDON_SIGNING=1
-	export MOZ_REQUIRE_SIGNING=0
+	#actually forget this, I'm patching it to FALSE in sources! 08 March 2022
+	##export MOZ_ADDON_SIGNING=1 #yup this was 1 even tho MOZ_REQUIRE_SIGNING=0
+	#export MOZ_ADDON_SIGNING=0 #this setting may not be used at all currently on 97.0.2 but just setting it to 0 anyway
+	##export MOZ_REQUIRE_SIGNING=0 # 0:01.63 mozbuild.configure.options.InvalidOptionError: MOZ_REQUIRE_SIGNING takes 0 values
+	#export -n MOZ_REQUIRE_SIGNING
+	#unset MOZ_REQUIRE_SIGNING
+	#MOZ_REQUIRE_SIGNING=
+	##^yup, it should be empty and work as if it's set to disabled!
+	#export MOZ_REQUIRE_SIGNING
 	#end of me
 
 	# Portage sets XARGS environment variable to "xargs -r" by default which

@@ -1,5 +1,5 @@
 don't forget to run /etc/dnsmasq.d/dnsmasq_noPTR_generator.bash after emerging
-this package! to make sure the urls are not forwarded to upstream DNS, via
-dnsmasq!
+this package! to make sure the urls are not forwarded(via dnsmasq) to upstream
+DNS!
 
 OK, I'm doing it in the ebuild in pkg_postinst !!!
