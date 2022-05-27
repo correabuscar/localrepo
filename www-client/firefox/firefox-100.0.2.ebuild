@@ -529,20 +529,20 @@ pkg_setup() {
 		# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
 		# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
 		# get your own set of keys.
-		if [[ -z "${MOZ_API_KEY_GOOGLE+set}" ]] ; then
-			MOZ_API_KEY_GOOGLE="AIzaSyDEAOvatFogGaPi0eTgsV_ZlEzx0ObmepsMzfAc"
-		fi
+		#if [[ -z "${MOZ_API_KEY_GOOGLE+set}" ]] ; then
+		#	MOZ_API_KEY_GOOGLE="AIzaSyDEAOvatFogGaPi0eTgsV_ZlEzx0ObmepsMzfAc"
+		#fi
 
-		if [[ -z "${MOZ_API_KEY_LOCATION+set}" ]] ; then
-			MOZ_API_KEY_LOCATION="AIzaSyB2h2OuRgGaPicUgy5N-5hsZqiPW6sH3n_rptiQ"
-		fi
+		#if [[ -z "${MOZ_API_KEY_LOCATION+set}" ]] ; then
+		#	MOZ_API_KEY_LOCATION="AIzaSyB2h2OuRgGaPicUgy5N-5hsZqiPW6sH3n_rptiQ"
+		#fi
 
 		# Mozilla API keys (see https://location.services.mozilla.com/api)
 		# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
 		# get your own set of keys.
-		if [[ -z "${MOZ_API_KEY_MOZILLA+set}" ]] ; then
-			MOZ_API_KEY_MOZILLA="edb3d487-3a84-46m0ap1e3-9dfd-92b5efaaa005"
-		fi
+		#if [[ -z "${MOZ_API_KEY_MOZILLA+set}" ]] ; then
+		#	MOZ_API_KEY_MOZILLA="edb3d487-3a84-46m0ap1e3-9dfd-92b5efaaa005"
+		#fi
 
 		# Ensure we use C locale when building, bug #746215
 		export LC_ALL=C
@@ -580,6 +580,21 @@ src_prepare() {
 	# Make cargo respect MAKEOPTS
 	export CARGO_BUILD_JOBS="$(makeopts_jobs)"
 
+	#cargo is being a smartaz:
+	# 1:02.71 error: the listed checksum of `/var/tmp/portage/www-client/firefox-83.0/work/firefox-83.0/third_party/rust/mp4parse/src/lib.rs` has changed:
+	# 1:02.71 expected: 4d4152c72ef49ced0a467879c51ff9e2430f704cd13a8eea4dc891b5f5843280
+	# 1:02.71 actual:   c6054a23d47e140c98f3d92085d5769abd2cd632e30182d2970c2bf903fe57fb
+	# 1:02.71 directory sources are not intended to be edited, if modifications are required then it is recommended that [replace] is used with a forked copy of the source
+	#doneTODO: need to recompute checksums after applying patch /patches/portage/www-client/firefox.reused/0900_try_reserve_mp4parse.patch
+	#echo '' > third_party/rust/mp4parse/.cargo-checksum.json
+	#rm third_party/rust/mp4parse/.cargo-checksum.json
+	#^ removing that makes it want to go online! but firewall stopped it so it failed!
+	#this file is what the patch changes: third_party/rust/mp4parse/src/lib.rs
+	#this patch: /patches/portage/www-client/firefox.reused/0900_try_reserve_mp4parse.patch
+	local recomputedsum="$(sha256sum -- third_party/rust/mp4parse/src/lib.rs | cut -f1 -d' ' )"
+	sed -re 's|("src/lib.rs":")[0-9a-f]+(")|\1'"${recomputedsum}"'\2|' -i third_party/rust/mp4parse/.cargo-checksum.json
+	#ok
+
 	# Make LTO respect MAKEOPTS
 	sed -i \
 		-e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
@@ -598,10 +613,11 @@ src_prepare() {
 		"${S}"/python/mozbuild/mozbuild/configure/check_debug_ranges.py \
 		|| die "sed failed to set toolchain prefix"
 
-	sed -i \
-		-e 's/ccache_stats = None/return None/' \
-		"${S}"/python/mozbuild/mozbuild/controller/building.py \
-		|| die "sed failed to disable ccache stats call"
+	#no,because I AM using ccache! keep stats!
+	#sed -i \
+	#	-e 's/ccache_stats = None/return None/' \
+	#	"${S}"/python/mozbuild/mozbuild/controller/building.py \
+	#	|| die "sed failed to disable ccache stats call"
 
 	einfo "Removing pre-built binaries ..."
 	find "${S}"/third_party -type f \( -name '*.so' -o -name '*.o' \) -print -delete || die
@@ -614,9 +630,9 @@ src_prepare() {
 	mkdir -p "${BUILD_DIR}" || die
 
 	# Write API keys to disk
-	echo -n "${MOZ_API_KEY_GOOGLE//gGaPi/}" > "${S}"/api-google.key || die
-	echo -n "${MOZ_API_KEY_LOCATION//gGaPi/}" > "${S}"/api-location.key || die
-	echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
+	#echo -n "${MOZ_API_KEY_GOOGLE//gGaPi/}" > "${S}"/api-google.key || die
+	#echo -n "${MOZ_API_KEY_LOCATION//gGaPi/}" > "${S}"/api-location.key || die
+	#echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
 
 	xdg_environment_reset
 }
@@ -626,6 +642,7 @@ src_configure() {
 	einfo "Current BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
 	einfo "Current CFLAGS:\t\t${CFLAGS:-no value set}"
 	einfo "Current CXXFLAGS:\t\t${CXXFLAGS:-no value set}"
+	einfo "Current CPPFLAGS:\t\t${CPPFLAGS:-no value set}"
 	einfo "Current LDFLAGS:\t\t${LDFLAGS:-no value set}"
 	einfo "Current RUSTFLAGS:\t\t${RUSTFLAGS:-no value set}"
 
@@ -685,8 +702,46 @@ src_configure() {
 	# Set Gentoo defaults
 	export MOZILLA_OFFICIAL=1
 
+	#TODO: why did I do these before the other settings? wouldn't they potentially get overridden?!
+	#mozconfig_add_options_ac 'gotchas' \
+	#	--disable-more-deterministic
+	#^ because 84 failed tests(and Object's keys order is sorted!ie. it breaks the web): https://bugs.gentoo.org/717374 and https://bugzilla.mozilla.org/show_bug.cgi?id=1542951
+	#08 may 2021: www-client/firefox-88.0.1:  0:01.89 mozbuild.configure.options.InvalidOptionError: Unknown option: --disable-more-deterministic
+
+	mozconfig_add_options_ac 'just making sure' \
+		--disable-artifact-builds
+	# https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Build_Instructions/Artifact_builds
+
+
+		#--without-ccache \
+	mozconfig_add_options_ac 'with ccache' \
+		--with-ccache=/usr/bin/ccache
+
+
+	# 0:02.41 mozbuild.configure.options.InvalidOptionError: --enable-system-ffi is not available in this configuration
+		#--with-system-ffi \
+	# 0:02.39 mozbuild.configure.options.InvalidOptionError: --with-system-ffi is not available in this configuration
+
+	#mozconfig_add_options_ac 'probably needs to be enabled' \
+	#	--disable-ctypes
+	#XXX: ^ that --disable-ctypes will cause --enable-system-ffi to not be recognized as valid option!
+
+		#--enable-cpp-rtti \
+	mozconfig_add_options_ac 'must be enabled or else --enable-system-ffi to not be recognized as valid option, at least!' \
+		--enable-ctypes
+	#js-ctypes allows application and extension code to call back and forth to native code written in C. C++ support is possible through vtable pointers see Using COM from js-ctypes.
+#src: https://developer.mozilla.org/en-US/docs/Mozilla/js-ctypes
+#XXX: if you disable this, you'll get the following(maybe also the core dump because of it): firefox-hg $ ./mach run
+# 0:00.89 /tmp/obj-x86_64-pc-linux-gnu/dist/bin/firefox -no-remote -profile /tmp/obj-x86_64-pc-linux-gnu/tmp/scratch_user
+#JavaScript error: resource://gre/modules/osfile/osfile_shared_allthreads.jsm, line 92: NS_ERROR_FILE_NOT_FOUND: Component returned failure code: 0x80520012 (NS_ERROR_FILE_NOT_FOUND) [nsIXPCComponents_Utils.import]
+#[27108] WARNING: Cannot create startup observer : service,@mozilla.org/weave/service;1: file /home/z/build/1packages/firefox-hg/makepkg_pacman/firefox-hg/src/firefox-hg/embedding/components/appstartup/nsAppStartupNotifier.cpp, line 81
+
+	#removed from 'Gentoo default':
+		#--allow-addon-sideload \
+		#^  if update channel is esr then this is true! so careful!
+		#--without-ccache \
+
 	mozconfig_add_options_ac 'Gentoo default' \
-		--allow-addon-sideload \
 		--disable-cargo-incremental \
 		--disable-crashreporter \
 		--disable-install-strip \
@@ -703,7 +758,6 @@ src_configure() {
 		--libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--prefix="${EPREFIX}/usr" \
 		--target="${CHOST}" \
-		--without-ccache \
 		--without-wasm-sandboxed-libraries \
 		--with-intl-api \
 		--with-libclang-path="$(llvm-config --libdir)" \
@@ -716,9 +770,59 @@ src_configure() {
 		--x-libraries="${ESYSROOT}/usr/$(get_libdir)"
 
 	# Set update channel
-	local update_channel=release
-	[[ -n ${MOZ_ESR} ]] && update_channel=esr
-	mozconfig_add_options_ac '' --update-channel=${update_channel}
+	#local update_channel=release
+	#[[ -n ${MOZ_ESR} ]] && update_channel=esr
+	#mozconfig_add_options_ac '' --update-channel=${update_channel}
+	mozconfig_add_options_ac 'from old mozconfig' --disable-update-channel
+
+
+	    #on 97.0.2, 08march2022 the following options don't exist anymore:
+		#'--enable-extensions=default,-skipgnomevfs,-skipgio' \ # 0:01.62 mozbuild.configure.options.InvalidOptionError: Unknown option: --enable-extensions
+		#--disable-tasktracer \
+		--enable-xul \
+
+	mozconfig_add_options_ac 'from old mozconfig' \
+		--disable-valgrind \
+		--disable-jprof \
+		--disable-instruments \
+		--disable-callgrind \
+		--disable-dtrace \
+		--disable-libproxy \
+		--disable-accessibility \
+		--disable-webrtc \
+		--disable-raw \
+		--disable-wmf \
+		--enable-ffmpeg \
+		--enable-fmp4 \
+		--disable-system-extension-dirs \
+		--disable-verify-mar \
+		--disable-parental-controls \
+		--enable-sandbox \
+		--disable-logrefcnt \
+		--disable-dump-painting \
+		--disable-stdcxx-compat \
+		--disable-startupcache \
+		--disable-webspeech \
+		--disable-synth-speechd \
+		--disable-webspeechtestbackend \
+		--disable-tests \
+		--disable-vtune
+
+	#see more flags in ${WORKDIR}/firefox-83.0/toolkit/moz.configure
+
+	#FIXME: can't disable printing due to errors because it's not guarded, ie. firefox devs don't expect it to ever be disabled so they don't compile against it.
+		#--disable-printing \
+		#16:19.17 /var/tmp/portage/www-client/firefox-83.0/work/firefox-83.0/widget/nsPrintSettingsImpl.cpp:821:24: error: use of undeclared identifier 'PR_GetEnv'
+	mozconfig_add_options_ac 'possible source of issues unless toggled' \
+		--disable-profiling \
+		--disable-dmd \
+		--disable-cpp-rtti
+			# #DMD (short for "dark matter detector") is a heap profiler within Firefox. https://developer.mozilla.org/en-US/docs/Mozilla/Performance/DMD
+
+
+	#--disable-system-pixman #used to be disabled on archlinux because:  ^ can't find pixman.h !
+	# already handled when using USE=clang :: --disable-elf-hack
+
 
 	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
 		mozconfig_add_options_ac '' --enable-rust-simd
@@ -843,8 +947,13 @@ src_configure() {
 
 	mozconfig_use_enable debug
 	if use debug ; then
-		mozconfig_add_options_ac '+debug' --disable-optimize
+		#mozconfig_add_options_ac '+debug' --disable-optimize
+		mozconfig_add_options_ac '+debug but do we want it for JS too? say yes for now' --enable-debug-js-modules
 	else
+		mozconfig_add_options_ac 'normal non-debug build' --disable-debug-js-modules
+	fi
+	#the -ggdb thing isn't dependent on USE=debug from now on:
+	#else
 		if is-flag '-g*' ; then
 			if use clang ; then
 				mozconfig_add_options_ac 'from CFLAGS' --enable-debug-symbols=$(get-flag '-g*')
@@ -868,7 +977,7 @@ src_configure() {
 		else
 			mozconfig_add_options_ac "Gentoo default" --enable-optimize=-O2
 		fi
-	fi
+	#fi
 
 	# Debug flag was handled via configure
 	filter-flags '-g*'
@@ -962,6 +1071,25 @@ src_configure() {
 
 	# Disable notification when build system has finished
 	export MOZ_NOSPAM=1
+	#me
+	export -n MOZ_TELEMETRY_REPORTING
+	unset MOZ_TELEMETRY_REPORTING
+
+	#unsure if any effect: (but a patch is already rendering the use of this moot)
+	export -n MOZ_TELEMETRY_ON_BY_DEFAULT
+	unset MOZ_TELEMETRY_ON_BY_DEFAULT
+
+	#actually forget this, I'm patching it to FALSE in sources! 08 March 2022
+	##export MOZ_ADDON_SIGNING=1 #yup this was 1 even tho MOZ_REQUIRE_SIGNING=0
+	#export MOZ_ADDON_SIGNING=0 #this setting may not be used at all currently on 97.0.2 but just setting it to 0 anyway
+	##export MOZ_REQUIRE_SIGNING=0 # 0:01.63 mozbuild.configure.options.InvalidOptionError: MOZ_REQUIRE_SIGNING takes 0 values
+	#export -n MOZ_REQUIRE_SIGNING
+	#unset MOZ_REQUIRE_SIGNING
+	#MOZ_REQUIRE_SIGNING=
+	##^yup, it should be empty and work as if it's set to disabled!
+	#export MOZ_REQUIRE_SIGNING
+	#end of me
+
 
 	# Portage sets XARGS environment variable to "xargs -r" by default which
 	# breaks build system's check_prog() function which doesn't support arguments
@@ -974,6 +1102,7 @@ src_configure() {
 	einfo "Build BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
 	einfo "Build CFLAGS:\t\t${CFLAGS:-no value set}"
 	einfo "Build CXXFLAGS:\t\t${CXXFLAGS:-no value set}"
+	einfo "Build CPPFLAGS:\t\t${CPPFLAGS:-no value set}"
 	einfo "Build LDFLAGS:\t\t${LDFLAGS:-no value set}"
 	einfo "Build RUSTFLAGS:\t\t${RUSTFLAGS:-no value set}"
 
