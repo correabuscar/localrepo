@@ -432,7 +432,9 @@ user_pref("browser.startup.homepage_override.mstone", "ignore"); // master switc
 // https://github.com/pyllyukko/user.js/issues/395
 // https://browserleaks.com/fonts
 // https://github.com/pyllyukko/user.js/issues/120
-user_pref("browser.display.use_document_fonts",			0);
+user_pref("browser.display.use_document_fonts",			1); //mod set to 1 to enable because google dev pages otherwise don't show fonts for some iconds and they show up as text overwriting other text and thus they look big and taking up space and making the webpage ugly! 
+user_pref("gfx.downloadable_fonts.otl_validation", true); //not sure what this is tho
+user_pref("gfx.missing_fonts.notify", true); //wtw this is, added it too.
 
 // PREF: Enable only whitelisted URL protocol handlers
 // http://kb.mozillazine.org/Network.protocol-handler.external-default
