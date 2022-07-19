@@ -1,0 +1,14 @@
+the file, like: Linux (64-bit) android-studio-2021.2.1.15-linux.tar.gz	964 MiB 	0018e0dfc0dd2921700516f7a2c443377c557788da7fb0a45243ecb4300745be (sha-256)
+which the emerge wants to get from mirrors,
+can be found on this page: https://developer.android.com/studio
+and downloaded manually and put into folder /var/cache/distfiles/
+
+like:
+https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2021.2.1.15/android-studio-2021.2.1.15-linux.tar.gz
+
+which gets redirected to like:
+
+https://r2---sn-4g5lznlz.gvt1.com/edgedl/android/studio/ide-zips/2021.2.1.15/android-studio-2021.2.1.15-linux.tar.gz?mh=BA&pl=21&shardbypass=sd&cm2rm=sn-h5bt5guxax3vh-hj9l7z,sn-c0qs77l&req_id=8516e2804ff237be&redirect_counter=2&cms_redirect=yes&cmsv=e&mip=81.182.59.163&mm=34&mn=sn-4g5lznlz&ms=ltu&mt=1657732846&mv=m&mvi=2&rmhost=r5---sn-4g5lznlz.gvt1.com&smhost=r5---sn-4g5edn6y.gvt1.com
+
+=======
+find if new ebuilds are existing on https://gpo.zugaina.org/dev-util/android-studio
