@@ -770,7 +770,11 @@ src_configure() {
 		#on 97.0.2, 08march2022 the following options don't exist anymore:
 		#'--enable-extensions=default,-skipgnomevfs,-skipgio' \ # 0:01.62 mozbuild.configure.options.InvalidOptionError: Unknown option: --enable-extensions
 		#--disable-tasktracer \
-		--enable-xul \
+		#--enable-xul \
+		#on 103.0 28 july 2022, doesn't exist:
+		#--disable-verify-mar \
+
+	# spacer
 
 	mozconfig_add_options_ac 'from old mozconfig' \
 		--disable-valgrind \
@@ -786,7 +790,6 @@ src_configure() {
 		--enable-ffmpeg \
 		--enable-fmp4 \
 		--disable-system-extension-dirs \
-		--disable-verify-mar \
 		--disable-parental-controls \
 		--enable-sandbox \
 		--disable-logrefcnt \
