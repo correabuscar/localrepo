@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LLVM_MAX_SLOT=13
+LLVM_MAX_SLOT=14
 inherit cmake llvm check-reqs
 
 DESCRIPTION="A robust, optimal, and maintainable programming language"
@@ -18,27 +18,23 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="test +stage2 +threads"
+IUSE="test +threads"
 RESTRICT="!test? ( test )"
 
 BUILD_DIR="${S}/build"
 
-# According to zig's author, zig builds that do not support all targets are not
-# supported by the upstream project.
-ALL_LLVM_TARGETS=(
-	AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430 NVPTX
-	PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore
-)
-ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
-LLVM_TARGET_USEDEPS="${ALL_LLVM_TARGETS[@]}"
-
-RDEPEND="
+DEPEND="
 	sys-devel/clang:${LLVM_MAX_SLOT}
 	>=sys-devel/lld-${LLVM_MAX_SLOT}
 	<sys-devel/lld-$((${LLVM_MAX_SLOT} + 1))
-	sys-devel/llvm:${LLVM_MAX_SLOT}[${LLVM_TARGET_USEDEPS// /,}]
+	sys-devel/llvm:${LLVM_MAX_SLOT}
+	>=sys-libs/zlib-1.2.12
 "
-DEPEND="${RDEPEND}"
+
+RDEPEND="
+	${DEPEND}
+	!dev-lang/zig-bin
+"
 
 llvm_check_deps() {
 	has_version "sys-devel/clang:${LLVM_SLOT}"
@@ -59,44 +55,75 @@ src_configure() {
 	local mycmakeargs=(
 		#-DZIG_USE_CCACHE=OFF
 		-DZIG_USE_CCACHE=ON
-		-DCMAKE_COLOR_MAKEFILE=ON
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+		#-DCMAKE_COLOR_MAKEFILE=ON
+		-DCMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION=ON #Ask cmake_install.cmake script to error out as soon as a file with absolute INSTALL DESTINATION is encountered. The fatal error is emitted before the installation of the offending file takes place. This variable is used by CMake-generated cmake_install.cmake scripts. If one sets this variable to ON while running the script, it may get fatal error messages from the script. src: https://cmake.org/cmake/help/latest/variable/CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION.html
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON #If enabled, generates a compile_commands.json file containing the exact compiler calls for all translation units of the project in machine-readable form. 
 		-DCMAKE_VERBOSE_MAKEFILE=ON
+
+		#-DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/stage3" #this is the default when set to empty, like below: (else it's /usr when unspecified!)
+		-DCMAKE_INSTALL_PREFIX=
+		#^required to avoid this:
+		# * ACCESS DENIED:  MKDIRAT:       /usr/lib/zig
+		#[195/195] cd /var/tmp/portage/dev-lang/zig-9999/work/zig-9999 && /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/zig2 build --zig-lib-dir /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/lib --prefix /usr -Dconfig_h=/var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/config.h -Denable-llvm -Denable-stage1 -Drelease -Dskip-install-lib-files=false -Dtarget=native -Dcpu=baseline
+		#FAILED: CMakeFiles/stage3 /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/CMakeFiles/stage3 
+		#cd /var/tmp/portage/dev-lang/zig-9999/work/zig-9999 && /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/zig2 build --zig-lib-dir /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/lib --prefix /usr -Dconfig_h=/var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/config.h -Denable-llvm -Denable-stage1 -Drelease -Dskip-install-lib-files=false -Dtarget=native -Dcpu=baseline
+		#error: AccessDenied
+
+		-DLLD_INCLUDE_DIRS="/usr/lib/llvm/14/include" #this is /usr/include if not specified! and ";" or ":" doesn't work in adding extra dirs to it!
+		#^ needed to avoid this:
+		#[195/195] cd /var/tmp/portage/dev-lang/zig-9999/work/zig-9999 && /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/zig2 build --zig-lib-dir /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/lib --prefix /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/stage3 -Dconfig_h=/var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/config.h -Denable-llvm -Denable-stage1 -Drelease -Dskip-install-lib-files=false -Dtarget=native -Dcpu=baseline
+		#FAILED: CMakeFiles/stage3 /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/CMakeFiles/stage3 
+		#cd /var/tmp/portage/dev-lang/zig-9999/work/zig-9999 && /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/zig2 build --zig-lib-dir /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/lib --prefix /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/stage3 -Dconfig_h=/var/tmp/portage/dev-lang/zig-9999/work/zig-9999/build/config.h -Denable-llvm -Denable-stage1 -Drelease -Dskip-install-lib-files=false -Dtarget=native -Dcpu=baseline
+		#error(compilation): clang failed with stderr: In file included from /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/src/stage1/range_set.cpp:1:
+		#In file included from /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/src/stage1/range_set.hpp:11:
+		#In file included from /var/tmp/portage/dev-lang/zig-9999/work/zig-9999/src/stage1/all_types.hpp:13:
+		#/var/tmp/portage/dev-lang/zig-9999/work/zig-9999/src/zig_llvm.h:13:10: fatal error: 'llvm-c/Core.h' file not found
+
+		#XXX: FIXME: these all didn't work!
+		#$ zig-stage2 run hello.zig 
+		#error: unable to find zig installation directory: FileNotFound
+		#waiting for fix in: https://bugs.gentoo.org/867592#c4
+
 		#-DLLD_LIBRARY=
-		-DZIG_PREFER_CLANG_CPP_DYLIB=ON
-		-DZIG_SINGLE_THREADED="$(usex threads OFF ON)"
+		-DZIG_SHARED_LLVM=ON
+		-DZIG_SINGLE_THREADED="$(usex !threads)"
 	)
 
 	cmake_src_configure
 }
 
-src_compile() {
-	cmake_src_compile
-
-	if use stage2 ; then
-		cd "${BUILD_DIR}" || die
-		./zig build -p stage2 -Dstatic-llvm=false -Denable-llvm=true -Dsingle-threaded="$(usex threads false true)" || die
-	fi
-}
+#src_compile() {
+#	cmake_src_compile zig1
+#	cmake_src_compile zig2
+#
+#	#if use stage2 ; then
+#	#	cd "${BUILD_DIR}" || die
+#	#	ln -rs stage3/bin/zig zig
+#	#	./zig build -p stage2 -Dstatic-llvm=false -Denable-llvm=true -Dsingle-threaded="$(usex threads false true)" -Dskip-install-lib-files=true --verbose || die
+#	#fi
+#	cd "${BUILD_DIR}" || die
+#	./zig2 build --prefix stage3 -Dstatic-llvm=false -Denable-llvm=true -Dsingle-threaded="$(usex threads false true)" -Dskip-install-lib-files=false -Dconfig_h="${BUILD_DIR}/config.h" --verbose || die
+#}
 
 src_test() {
 	cd "${BUILD_DIR}" || die
-	./zig build test || die
+	./stage3/bin/zig build test -Dstatic-llvm=false -Denable-llvm=true || die
 }
 
 src_install() {
-	cmake_src_install
-
-	if use stage2 ; then
-		cd "${BUILD_DIR}" || die
-		mv ./stage2/bin/zig zig-stage2 || die
-		dobin zig-stage2
-	fi
+	cd "${BUILD_DIR}" || die
+	DESTDIR="${D}" ./zig2 build install -Denable-stage1=true -Dstatic-llvm=false -Denable-llvm=true --prefix "${EPREFIX}"/usr || die
+	dodoc ../README.md
+	#newbin zig1 zig-stage1
+	#newbin zig2 zig-stage2
+	newbin stage3/bin/zig zig-stage3
 }
 
 # see https://github.com/ziglang/zig/issues/3382
-QA_FLAGS_IGNORED="/usr/bin/zig-stage2"
+QA_FLAGS_IGNORED="usr/bin/zig"
 
 pkg_postinst() {
-	use stage2 && elog "You enabled stage2 USE flag, Zig stage1 was installed as /usr/bin/zig, Zig stage2 was installed as /usr/bin/zig-stage2"
+	#use stage2 && elog "You enabled stage2 USE flag, Zig stage1 was installed as /usr/bin/zig, Zig stage2 was installed as /usr/bin/zig-stage2"
+	#elog "Zig stage1 was installed as /usr/bin/zig-stage1"
+	elog "If you want to use stage1 backend, use -fstage1 flag"
 }

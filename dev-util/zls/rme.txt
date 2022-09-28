@@ -1,0 +1,8 @@
+from: https://github.com/BratishkaErik/bratishkaerik-overlay/tree/main/dev-util/zls
+
+warning: need to use FEATURES=-userpriv
+ie.
+# FEATURES=-userpriv liverebuild zls -- --usepkg=n
+
+else: https://github.com/BratishkaErik/bratishkaerik-overlay/issues/1#issuecomment-1235767123
+

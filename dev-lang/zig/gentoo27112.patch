@@ -1,0 +1,101 @@
+From 2334b3a131e6c892d338494fed977e6a1bc2b671 Mon Sep 17 00:00:00 2001
+From: Eric Joldasov <bratishkaerik@getgoogleoff.me>
+Date: Fri, 2 Sep 2022 16:22:36 +0600
+Subject: [PATCH] dev-lang/zig: always install self-hosted compiler, workaround
+ upstream cmake bugs
+
+Closes: https://bugs.gentoo.org/867592
+Signed-off-by: Eric Joldasov <bratishkaerik@getgoogleoff.me>
+---
+ dev-lang/zig/files/zig-9999-stage2-fix.patch |  6 ++---
+ dev-lang/zig/metadata.xml                    |  3 ---
+ dev-lang/zig/zig-9999.ebuild                 | 24 ++++++++++----------
+ 3 files changed, 15 insertions(+), 18 deletions(-)
+
+diff --git a/dev-lang/zig/files/zig-9999-stage2-fix.patch b/dev-lang/zig/files/zig-9999-stage2-fix.patch
+index 610ab6b866231..a2fe945c4a391 100644
+--- a/dev-lang/zig/files/zig-9999-stage2-fix.patch
++++ b/dev-lang/zig/files/zig-9999-stage2-fix.patch
+@@ -1,12 +1,12 @@
+ diff --git a/build.zig b/build.zig
+-index ac0a161..12f7e15 100644
++index c8e757dc4..b698b5680 100644
+ --- a/build.zig
+ +++ b/build.zig
+-@@ -562,6 +562,7 @@ fn addCmakeCfgOptionsToExe(
++@@ -577,6 +577,7 @@ fn addCmakeCfgOptionsToExe(
+                  else => |e| return e,
+              };
+              exe.linkSystemLibrary("unwind");
+ +            exe.linkSystemLibrary("c_nonshared");
+          } else if (exe.target.isFreeBSD()) {
+-             try addCxxKnownPath(b, cfg, exe, "libc++.a", null, need_cpp_includes);
++             try addCxxKnownPath(b, cfg, exe, b.fmt("libc++.{s}", .{lib_suffix}), null, need_cpp_includes);
+              exe.linkSystemLibrary("pthread");
+diff --git a/dev-lang/zig/metadata.xml b/dev-lang/zig/metadata.xml
+index c12ebabd226e5..a5a5818faae79 100644
+--- a/dev-lang/zig/metadata.xml
++++ b/dev-lang/zig/metadata.xml
+@@ -9,9 +9,6 @@
+ 		<email>proxy-maint@gentoo.org</email>
+ 		<name>Proxy Maintainers</name>
+ 	</maintainer>
+-	<use>
+-		<flag name="stage2">Install stage2 compiler (written in Zig) alongside stage1 compiler (written in C++ and Zig)</flag>
+-	</use>
+ 	<upstream>
+ 		<remote-id type="github">ziglang/zig</remote-id>
+ 		<bugs-to>https://github.com/ziglang/zig/issues</bugs-to>
+diff --git a/dev-lang/zig/zig-9999.ebuild b/dev-lang/zig/zig-9999.ebuild
+index 32a064ec02fc8..a8b2605927a32 100644
+--- a/dev-lang/zig/zig-9999.ebuild
++++ b/dev-lang/zig/zig-9999.ebuild
+@@ -18,7 +18,7 @@ fi
+ 
+ LICENSE="MIT"
+ SLOT="0"
+-IUSE="test +stage2 +threads"
++IUSE="test +threads"
+ RESTRICT="!test? ( test )"
+ 
+ BUILD_DIR="${S}/build"
+@@ -62,28 +62,28 @@ src_configure() {
+ }
+ 
+ src_compile() {
+-	cmake_src_compile
++	cmake_src_compile zig1
++	cmake_src_compile zig2
+ 
+-	if use stage2 ; then
+-		cd "${BUILD_DIR}" || die
+-		./zig build -p stage2 -Dstatic-llvm=false -Denable-llvm=true -Dsingle-threaded="$(usex threads false true)" -Dskip-install-lib-files=true --verbose || die
+-	fi
++	cd "${BUILD_DIR}" || die
++	./zig2 build --prefix stage3 -Dstatic-llvm=false -Denable-llvm=true -Dsingle-threaded="$(usex threads false true)" -Dskip-install-lib-files=false -Dconfig_h="${BUILD_DIR}/config.h" --verbose || die
+ }
+ 
+ src_test() {
+ 	cd "${BUILD_DIR}" || die
+-	./zig build test || die
++	./stage3/bin/zig build test -Dstatic-llvm=false -Denable-llvm=true || die
+ }
+ 
+ src_install() {
+-	cmake_src_install
+-
+-	use stage2 && newbin "${BUILD_DIR}/stage2/bin/zig" zig-stage2
++	cd "${BUILD_DIR}" || die
++	DESTDIR="${D}" ./zig2 build install -Dstatic-llvm=false -Denable-llvm=true --prefix "${EPREFIX}"/usr || die
++	dodoc ../README.md
++	newbin zig2 zig-stage1
+ }
+ 
+ # see https://github.com/ziglang/zig/issues/3382
+-QA_FLAGS_IGNORED="usr/bin/zig-stage2"
++QA_FLAGS_IGNORED="usr/bin/zig"
+ 
+ pkg_postinst() {
+-	use stage2 && elog "You enabled stage2 USE flag, Zig stage1 was installed as /usr/bin/zig, Zig stage2 was installed as /usr/bin/zig-stage2"
++	elog "Zig stage1 was installed as /usr/bin/zig-stage1"
+ }

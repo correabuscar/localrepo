@@ -1,0 +1,4 @@
+updates to ebuild at: https://gpo.zugaina.org/dev-util/android-studio-canary                                                                                      
+Overlay: adasss
+
+
