@@ -1,1 +1,3 @@
+from: https://github.com/konsolebox/overlay/tree/master/app-shells/bash
+or
 from: https://data.gpo.zugaina.org/konsolebox/app-shells/bash/
