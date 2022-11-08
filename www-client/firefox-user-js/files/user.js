@@ -1823,7 +1823,7 @@ user_pref("datareporting.policy.firstRunURL", "https://datareporting.policy.firs
 user_pref("devtools.debugger.prompt-connection", true);
 user_pref("dom.apps.reset-permissions", true);
 user_pref("dom.enable_performance_navigation_timing", false);
-user_pref("dom.enable_performance_observer", false);
+user_pref("dom.enable_performance_observer", true); //github won't work properly with this on 'false' see: https://github.github.com/browser-support/ which shoes PerformanceObserver Constructor would be '!' red.
 user_pref("dom.event.contextmenu.enabled", false);
 
 /* 2428: enforce DOMHighResTimeStamp API
