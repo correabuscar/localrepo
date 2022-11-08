@@ -2561,7 +2561,7 @@ user_pref("dom.caches.enabled", false);
    // Zoom levels affect screen res and are highly fingerprintable. This does not stop you using
    // zoom, it will just not use/remember any site specific settings. Zoom levels on new tabs
    // and new windows are reset to default and only the current tab retains the current zoom
-user_pref("browser.zoom.siteSpecific", false);
+user_pref("browser.zoom.siteSpecific", true); //was false; true needed to remember site-specific zoom!
 
 // 4611: [2509] disable touch events
    // fingerprinting attack vector - leaks screen res & actual screen coordinates
