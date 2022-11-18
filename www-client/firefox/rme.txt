@@ -9,4 +9,4 @@ package: so 'localrepo' is picked first(higher prio) above 'gentoo' which is
 what we want because same package(&ver) existing in 'localrepo' compared to
 'gentoo' means it's a modified version.
 
-
+don't forget to get latest ebuild for virtual/rust too!
