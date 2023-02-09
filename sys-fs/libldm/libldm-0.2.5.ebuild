@@ -19,6 +19,7 @@ src_prepare() {
 	# Remove problematic LDFLAGS declaration
 	sed -i -e 's/ -Werror//g' src/Makefile.am || die
 	eautoreconf
+	eapply_user
 }
 
 src_unpack() {
