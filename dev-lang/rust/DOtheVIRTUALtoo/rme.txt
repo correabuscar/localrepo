@@ -1,0 +1,4 @@
+do update the ebuild for virtual/rust as well! or it won't work
+
+/var/db/repos/gentoo/virtual/rust
+
