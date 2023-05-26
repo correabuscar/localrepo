@@ -1,0 +1,41 @@
+can't keep these dirs in ../rust/
+because 'pkgdev manifest' command is too finicky:
+
+[i87k rust]# pkgdev manifest
+ * generating manifest: dev-lang/rust::localrepo
+Traceback (most recent call last):
+  File "/usr/lib/python-exec/python3.11/pkgdev", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgdev/scripts/__init__.py", line 48, in main
+    run(os.path.basename(sys.argv[0]))
+  File "/usr/lib/python3.11/site-packages/pkgdev/scripts/__init__.py", line 40, in run
+    sys.exit(tool())
+             ^^^^^^
+  File "/usr/lib/python3.11/site-packages/snakeoil/cli/tool.py", line 81, in __call__
+    ret = self.main()
+          ^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgdev/cli.py", line 23, in main
+    return super().main()
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/snakeoil/cli/tool.py", line 191, in main
+    self.handle_exec_exception(e)
+  File "/usr/lib/python3.11/site-packages/snakeoil/cli/tool.py", line 176, in main
+    exitstatus = func(self.options, self.out, self.err)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgdev/scripts/pkgdev_manifest.py", line 129, in _manifest
+    failed = options.repo.operations.manifest(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgcore/operations/__init__.py", line 70, in _recast_exception_decorator
+    return functor(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgcore/operations/repo.py", line 283, in _cmd_api_manifest
+    return self._cmd_implementation_manifest(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/site-packages/pkgcore/ebuild/repository.py", line 162, in _cmd_implementation_manifest
+    manifest.update(sorted(all_fetchables.values()), chfs=write_chksums)
+  File "/usr/lib/python3.11/site-packages/pkgcore/ebuild/digest.py", line 148, in update
+    raise Exception(
+Exception: Unexpected directory found in '/var/db/repos/localrepo/dev-lang/rust/Manifest'; '/DOtheVIRTUALtoo'
+Press any key to continue...
+
