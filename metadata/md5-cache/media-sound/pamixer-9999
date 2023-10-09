@@ -1,0 +1,14 @@
+BDEPEND=>=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=install unpack
+DEPEND=dev-libs/boost media-sound/pulseaudio
+DESCRIPTION=Pulseaudio command line mixer.
+EAPI=7
+HOMEPAGE=https://github.com/cdemoulins/pamixer
+INHERIT=git-r3
+LICENSE=GPL-3
+PROPERTIES=live
+RDEPEND=dev-libs/boost media-sound/pulseaudio
+RESTRICT=mirror
+SLOT=0
+_eclasses_=git-r3	2358a7b20091609e24bd3a83b3ac5991
+_md5_=2bbd16856eb5f731e9603ae87f20b3dd
