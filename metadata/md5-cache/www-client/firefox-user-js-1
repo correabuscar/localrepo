@@ -1,8 +1,0 @@
-DEFINED_PHASES=compile install postinst prepare unpack
-DESCRIPTION=Firefox configuration hardening
-EAPI=7
-HOMEPAGE=https://github.com/pyllyukko/user.js
-KEYWORDS=~amd64 ~x86 amd64 x86
-LICENSE=MIT
-SLOT=0
-_md5_=793b96c007fd4edc61cac739211a6d5a
