@@ -5,7 +5,7 @@ EAPI=8
 
 FIREFOX_PATCHSET="firefox-118-patches-02.tar.xz"
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
@@ -82,21 +82,21 @@ FF_ONLY_DEPEND="!www-client/firefox:0
 BDEPEND="${PYTHON_DEPS}
 	|| (
 		(
-			sys-devel/clang:16
-			sys-devel/llvm:16
-			clang? (
-				sys-devel/lld:16
-				virtual/rust:0/llvm-16
-				pgo? ( =sys-libs/compiler-rt-sanitizers-16*[profile] )
-			)
-		)
-		(
 			sys-devel/clang:17
 			sys-devel/llvm:17
 			clang? (
 				sys-devel/lld:17
 				virtual/rust:0/llvm-17
 				pgo? ( =sys-libs/compiler-rt-sanitizers-17*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:16
+			sys-devel/llvm:16
+			clang? (
+				sys-devel/lld:16
+				virtual/rust:0/llvm-16
+				pgo? ( =sys-libs/compiler-rt-sanitizers-16*[profile] )
 			)
 		)
 	)
@@ -908,7 +908,6 @@ src_configure() {
 		--disable-raw \
 		--disable-wmf \
 		--enable-ffmpeg \
-		--enable-fmp4 \
 		--disable-system-extension-dirs \
 		--disable-parental-controls \
 		--enable-sandbox \
@@ -921,6 +920,11 @@ src_configure() {
 		--disable-webspeechtestbackend \
 		--disable-tests \
 		--disable-vtune
+
+	# in firefox 118.0.1
+	# 0:00.81 mozbuild.configure.options.InvalidOptionError: Unknown option: --enable-fmp4
+		#--enable-fmp4 \
+
 
 	#see more flags in ${WORKDIR}/firefox-83.0/toolkit/moz.configure
 
