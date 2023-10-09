@@ -1,0 +1,14 @@
+--- firefox-113.0.2.ebuild.orig.wtw	2023-05-25 14:10:29.000000000 +0200
++++ firefox-118.0.1.ebuild	2023-10-08 07:02:34.536734076 +0200
+@@ -62,9 +61,9 @@ SLOT="rapid"
+ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
+ 
+ IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+-IUSE+=" jack +jumbo-build libproxy lto +openh264 pgo pulseaudio sndio selinux"
++IUSE+=" jack +jumbo-build libproxy lto openh264 pgo pulseaudio sndio selinux"
+ IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-python-libs +system-webp"
+-IUSE+=" +telemetry wayland wifi +X"
++IUSE+=" +telemetry valgrind wayland wifi +X"
+ 
+ # Firefox-only IUSE
+ IUSE+=" geckodriver +gmp-autoupdate screencast"

@@ -1,0 +1,14 @@
+--- rust-1..ebuild.orig	2023-04-24 23:40:07.000000000 +0200
++++ rust-1.73.0.ebuild	2023-10-07 11:10:44.000000000 +0200
+@@ -442,9 +456,11 @@ src_configure() {
+ 		deny-warnings = $(usex wasm $(usex doc false true) true)
+ 		backtrace-on-ice = true
+ 		jemalloc = false
++		lto = "$(usex lto fat off)"
+ 		[dist]
+ 		src-tarball = false
+ 		compression-formats = ["xz"]
++		compression-profile = "balanced"
+ 	_EOF_
+ 
+ 	for v in $(multilib_get_enabled_abi_pairs); do

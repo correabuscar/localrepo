@@ -1,4 +1,6 @@
-do update the ebuild for virtual/rust as well! or it won't work
+do update(ie. copy latest from gentoo repo!) the ebuild for virtual/rust as well! or it won't work
 
 /var/db/repos/gentoo/virtual/rust
+
+in current dir there's a symlink to it!
 
