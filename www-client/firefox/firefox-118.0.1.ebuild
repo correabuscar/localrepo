@@ -941,9 +941,15 @@ src_configure() {
 	#--disable-system-pixman #used to be disabled on archlinux because:  ^ can't find pixman.h !
 	# already handled when using USE=clang :: --disable-elf-hack
 	# --------------
-	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
-		mozconfig_add_options_ac '' --enable-rust-simd
-	fi
+#	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+#		mozconfig_add_options_ac '' --enable-rust-simd
+#		#well this gives me errors like this:
+## 4:01.36 error: unrecognized platform-specific intrinsic function: `simd_shuffle2`
+## 4:01.36   --> /var/tmp/portage/www-client/firefox-118.0.1/work/firefox-118.0.1/third_party/rust/packed_simd_2/src/codegen/llvm.rs:10:5
+## 4:01.36    |
+## 4:01.36 10 |     pub fn simd_shuffle2<T, U>(x: T, y: T, idx: [u32; 2]) -> U;
+## 4:01.36    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#	fi
 
 	# For future keywording: This is currently (97.0) only supported on:
 	# amd64, arm, arm64 & x86.
