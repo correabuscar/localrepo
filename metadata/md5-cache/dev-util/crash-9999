@@ -1,0 +1,13 @@
+BDEPEND=>=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=compile prepare unpack
+DESCRIPTION=Red Hat crash utility; used for analyzing kernel core dumps
+EAPI=8
+HOMEPAGE=https://crash-utility.github.io/
+INHERIT=toolchain-funcs git-r3
+LICENSE=GPL-3
+PROPERTIES=live
+RESTRICT=test
+SLOT=0
+SRC_URI=http://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.gz
+_eclasses_=toolchain-funcs	eed10cf5e5a06916e654d31f5a1925cc	multilib	c19072c3cd7ac5cb21de013f7e9832e0	git-r3	5133e393e8717a3a093660f990801dc1
+_md5_=371cd4aeb6d54a8246f12e236af76381
