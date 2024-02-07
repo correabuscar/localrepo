@@ -35,7 +35,7 @@ DEPEND="${RDEPEND}"
 #}
 
 src_compile () {
-	emake CC=$(tc-getCC) LINKTYPE=dynamic CFLAGS_ARCH=$(CFLAGS)
+	emake CC=$(tc-getCC) LINKTYPE=dynamic CFLAGS_ARCH="$CFLAGS"
 }
 
 #src_install () {
