@@ -1243,6 +1243,7 @@ user_pref("browser.download.manager.retention",			0);
 // PREF: Disable password manager (use an external password manager!)
 // CIS Version 1.2.0 October 21st, 2011 2.5.2
 user_pref("signon.rememberSignons",				false);
+user_pref("signon.recipes.remoteRecipes.enabled",				false); //probably gettings from remote something like this contents: resource://app/defaults/settings/main/password-recipes.json
 
 // PREF: Disable form autofill, don't save information entered in web page forms and the Search Bar
 // this is in about:preferences#privacy -> History -> [] "Remember search and form history"
