@@ -2818,6 +2818,7 @@ user_pref("browser.translations.enable", false); // default: true, this is Berga
 //console.error: (new ReferenceError("WebAssembly is not defined", "resource://gre/actors/TranslationsParent.sys.mjs", 2620))
 
 user_pref("widget.non-native-theme.scrollbar.size.override", 50); // was 0, too tiny and useless.
+user_pref("widget.gtk.overlay-scrollbars.enabled", false); //false means "Always show scrollbars", true means hide it but when mouse moves it shows it briefly as an overlay which goes over text if too big even when collapsed (at size 50 above)
 
 //XXX: keep this last: inspired from https://github.com/ghacksuserjs/ghacks-user.js/blame/6ee25c2bf55dd86f4bdcb179496ea7203049a85a/user.js#L2111-L2112
 user_pref("_user.js", "Successfully finalized! rev.1");
