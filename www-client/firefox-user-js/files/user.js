@@ -394,6 +394,17 @@ user_pref("javascript.options.wasm_verbose",                           true);//i
 user_pref("devtools.debugger.features.wasm", false); //default: true
 //^ see what this does!
 
+//XXX: chatgpt 3.5 requires (since 18April2024) wasm: javascript.options.wasm and javascript.options.wasm_baselinejit
+user_pref("javascript.options.wasm_baselinejit", false); //default: true
+user_pref("javascript.options.wasm_caching", false); //default: true
+user_pref("javascript.options.wasm_function_references", false); //default: true
+user_pref("javascript.options.wasm_gc", false); //default: true
+user_pref("javascript.options.wasm_optimizingjit", false); //default: true
+user_pref("javascript.options.wasm_simd", false); //default: true
+user_pref("javascript.options.wasm_simd_avx", false); //default: true
+user_pref("javascript.options.wasm_tail_calls", false); //default: true
+user_pref("javascript.options.wasm_trustedprincipals", false); //default: true
+
 
 // PREF: Disable SVG in OpenType fonts
 // https://wiki.mozilla.org/SVGOpenTypeFonts
