@@ -1,0 +1,12 @@
+should check:
+https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-lang/rust
+
+if using -9999, then also:
+https://github.com/Miezhiko/Overlay/tree/mawa/dev-lang/rust
+
+before creating the first *-9999.ebuild, also check(in addition to the above, that is):
+/var/db/repos/localrepo/dev-lang/rust.EXTRAS/cantmanifestifthesearepresent/*-9999.*
+/home/user/SOURCE/rust.stuff/1should.del/rust
+
+then look in /patches to make sure they're applied, and fix them so that they do apply.
+
