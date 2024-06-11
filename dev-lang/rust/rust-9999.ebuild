@@ -282,16 +282,45 @@ src_unpack() {
 		link-jobs = $(makeopts_jobs)
 		link-shared =  $(toml_usex system-llvm)
 		static-libstdcpp = $(usex system-llvm false true)
-		use-libcxx = false
+		#use-libcxx = false
+		$(if is_libcxx_linked; then
+		  # https://bugs.gentoo.org/732632
+		  echo "use-libcxx = true"
+		  echo "static-libstdcpp = false"
+		fi)
+		$(case "${rust_target}" in
+		  i586-*-linux-*)
+			# https://github.com/rust-lang/rust/issues/93059
+			echo 'cflags = "-fcf-protection=none"'
+			echo 'cxxflags = "-fcf-protection=none"'
+			echo 'ldflags = "-fcf-protection=none"'
+			;;
+		  *)
+			;;
+		esac)
+		enable-warnings = false
 
 		[llvm.build-config]
 		CMAKE_VERBOSE_MAKEFILE = "ON"
-		CMAKE_C_FLAGS_${cm_btype} = "${CFLAGS}"
-		CMAKE_CXX_FLAGS_${cm_btype} = "${CXXFLAGS}"
-		CMAKE_EXE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = "${ARFLAGS}"
+		$(if ! tc-is-cross-compiler; then
+		  # When cross-compiling, LLVM is compiled twice, once for host and
+		  # once for target.  Unfortunately, this build configuration applies
+		  # to both, which means any flags applicable to one target but not
+		  # the other will break.  Conditionally disable respecting user
+		  # flags when cross-compiling.
+		  echo "CMAKE_C_FLAGS_${cm_btype} = \"${CFLAGS}\""
+		  echo "CMAKE_CXX_FLAGS_${cm_btype} = \"${CXXFLAGS}\""
+		  echo "CMAKE_EXE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+		  echo "CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+		  echo "CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+		  echo "CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = \"${ARFLAGS}\""
+		fi)
+		#CMAKE_C_FLAGS_${cm_btype} = "${CFLAGS}"
+		#CMAKE_CXX_FLAGS_${cm_btype} = "${CXXFLAGS}"
+		#CMAKE_EXE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+		#CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+		#CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+		#CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = "${ARFLAGS}"
 
 		[build]
 		build-stage = 2
