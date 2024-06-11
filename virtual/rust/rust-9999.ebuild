@@ -10,10 +10,15 @@ DESCRIPTION="Virtual for Rust language compiler"
 
 LICENSE=""
 
-SLOT="0/llvm-17"
+# adjust when rust upstream bumps internal llvm
+# we do not allow multiple llvm versions in dev-lang/rust for
+# neither system nor bundled, so we just hardcode it here.
+SLOT="0/llvm-18"
 
-KEYWORDS=""
+#KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="rustfmt"
 
 BDEPEND=""
+#TODO: do we need 'profile' too from: rust-1.76.0.ebuild
 RDEPEND="~dev-lang/rust-${PV}[rustfmt?,${MULTILIB_USEDEP}]"
