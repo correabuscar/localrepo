@@ -123,6 +123,7 @@ S="${WORKDIR}/${MY_P}-src"
 
 # causes double bootstrap
 RESTRICT="test"
+#In the past this was in RESTRICT: "When network-sandbox is added to RESTRICT, it allows the ebuild to access the network during the build process. This might be necessary for packages that need to download additional resources or dependencies that are not included in the main source tarball."
 
 toml_usex() {
 	usex "${1}" true false
@@ -194,7 +195,7 @@ src_unpack() {
 	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 
 	git-r3_src_unpack
-	default
+	default # Call the default src_unpack implementation "In Gentoo ebuilds, the default function is a helper function provided by the eclass framework. It allows an ebuild to call the default implementation of a given phase function provided by the eclasses the ebuild inherits from. This is useful when you want to add some custom behavior to a phase but also want to retain the default behavior defined by the eclasses."
 
 	cd ${S}
 
@@ -268,6 +269,7 @@ src_unpack() {
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
 		changelog-seen = 2
+		# see what each of these mean at: https://github.com/rust-lang/rust/blob/master/config.example.toml
 		[llvm]
 		download-ci-llvm = false
 		optimize = true
@@ -281,12 +283,13 @@ src_unpack() {
 		experimental-targets = ""
 		link-jobs = $(makeopts_jobs)
 		link-shared =  $(toml_usex system-llvm)
-		static-libstdcpp = $(usex system-llvm false true)
-		#use-libcxx = false
 		$(if is_libcxx_linked; then
 		  # https://bugs.gentoo.org/732632
 		  echo "use-libcxx = true"
 		  echo "static-libstdcpp = false"
+		  else
+			echo "static-libstdcpp = $(usex system-llvm false true)"
+			echo "use-libcxx = false"
 		fi)
 		$(case "${rust_target}" in
 		  i586-*-linux-*)
@@ -326,9 +329,37 @@ src_unpack() {
 		build-stage = 2
 		test-stage = 2
 		doc-stage = 2
+		# Build triple for the pre-compiled snapshot compiler. If `rustc` is set, this must match its host
+		# triple (see `rustc --version --verbose`; cross-compiling the rust build system itself is NOT
+		# supported). If `rustc` is unset, this must be a platform with pre-compiled host tools
+		# (https://doc.rust-lang.org/nightly/rustc/platform-support.html). The current platform must be
+		# able to run binaries of this build triple.
+		#
+		# If `rustc` is present in path, this defaults to the host it was compiled for.
+		# Otherwise, `x.py` will try to infer it from the output of `uname`.
+		# If `uname` is not found in PATH, we assume this is `x86_64-pc-windows-msvc`.
+		# This may be changed in the future.
+		#build = "x86_64-unknown-linux-gnu" (as an example)
 		build = "${rust_target}"
+
+		# Which triples to produce a compiler toolchain for. Each of these triples will be bootstrapped from
+		# the build triple themselves. In other words, this is the list of triples for which to build a
+		# compiler that can RUN on that triple.
+		#
+		# Defaults to just the `build` triple.
+		#host = [build.build] (list of triples)
 		host = ["${rust_target}"]
+
+		# Which triples to build libraries (core/alloc/std/test/proc_macro) for. Each of these triples will
+		# be bootstrapped from the build triple themselves. In other words, this is the list of triples for
+		# which to build a library that can CROSS-COMPILE to that triple.
+		#
+		# Defaults to `host`. If you set this explicitly, you likely want to add all
+		# host triples to this list as well in order for those host toolchains to be
+		# able to compile programs for their native target.
+		#target = build.host (list of triples)
 		target = [${rust_targets}]
+
 		docs = $(toml_usex doc)
 		compiler-docs = $(toml_usex doc)
 		#
@@ -336,6 +367,7 @@ src_unpack() {
 		#
 		python = "${EPYTHON}"
 		locked-deps = false
+		#TODO: had this to true ^ locked-deps
 		vendor = false
 		extended = true
 		tools = [${tools}]
@@ -346,6 +378,9 @@ src_unpack() {
 		cargo-native-static = false
 		low-priority = true
 		print-step-timings = true
+		# Indicates that a local rebuild is occurring instead of a full bootstrap,
+		# essentially skipping stage0 as the local compiler is recompiling itself again.
+		# Useful for modifying only the stage2 compiler without having to pass `--keep-stage 0` each time.
 		local-rebuild = false
 
 		[install]
@@ -382,25 +417,43 @@ src_unpack() {
 		debuginfo-level-tools = 2
 		debuginfo-level-tests = 2
 
+		# Whether or not `panic!`s generate backtraces (RUST_BACKTRACE)
 		#backtrace = $(toml_usex debug)
 		backtrace = true
+
+		# Print backtrace on internal compiler errors during bootstrap
+		backtrace-on-ice = true
+
 		incremental = false
 		default-linker = "$(tc-getCC)"
 		parallel-compiler = $(toml_usex parallel-compiler)
 		channel = "nightly"
 		description = "gentoo"
 		rpath = false
-		verbose-tests = false
+
+		# Prints each test name as it is executed, to help debug issues in the test harness itself.
+		#verbose-tests = false
+		verbose-tests = true
+
+		# Flag indicating whether tests are compiled with optimizations (the -O flag).
 		optimize-tests = $(toml_usex !debug)
+
+		# Flag indicating whether codegen tests will be run or not. If you get an error
+		# saying that the FileCheck executable is missing, you may want to disable this.
+		# Also see the target's llvm-filecheck option.
+		#codegen-tests = true
 		codegen-tests = $(toml_usex debug)
+
+		# Whether to create a source tarball by default when running `x dist`.
+		# You can still build a source tarball when this is disabled by explicitly passing `x dist rustc-src`.
 		dist-src = $(toml_usex debug)
+
 		remap-debuginfo = $(toml_usex debug)
 		lld = $(usex system-llvm false $(toml_usex wasm))
 		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
 		# https://github.com/rust-lang/rust/issues/74976
 		# https://github.com/rust-lang/rust/issues/76526
 		deny-warnings = $(usex wasm $(usex doc false true) true)
-		backtrace-on-ice = true
 		jemalloc = false
 		llvm-libunwind = "$(usex system-llvm system)"
 
@@ -539,6 +592,7 @@ src_unpack() {
 		"${EPYTHON}" ./x.py build -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 	)
 
+	einfo "HOME is set to: ${HOME}"
 	mv ${HOME}/.cargo ${S}/.cargo ||die "INSTALL VENDORING .cargo FAILED"
 
 	# can't use image here because we need src_install

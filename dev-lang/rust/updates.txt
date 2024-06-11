@@ -10,3 +10,6 @@ before creating the first *-9999.ebuild, also check(in addition to the above, th
 
 then look in /patches to make sure they're applied, and fix them so that they do apply.
 
+then look at what else still applies and maybe add new ones from:
+https://github.com/rust-lang/rust/blob/master/config.example.toml
+
