@@ -151,6 +151,8 @@ pre_build_checks() {
 	fi
 	eshopts_pop
 	M=$(( $(usex doc 256 0) + ${M} ))
+	M=$(( 61000 + ${M} )) #takes 61G so to be sure add wtw else they think it would take, for crazy safety.
+	#current ebuild (29nov2020) took 60mins to compile (mitigations=2) and 60G in /var/tmp/portage (oddly 610M left even tho it was a 64G ext4 zram
 	CHECKREQS_DISK_BUILD=${M}M check-reqs_pkg_${EBUILD_PHASE}
 }
 
@@ -223,7 +225,9 @@ src_unpack() {
 	# it's a shebang and make them executable. Then brp-mangle-shebangs gets upset...
 	find -name '*.rs' -type f -perm /111 -exec chmod -v -x '{}' '+'
 
-	eapply "${FILESDIR}"/0002-compiler-Change-LLVM-targets.patch
+	#we don't need this: https://github.com/Miezhiko/Overlay/blob/mawa/dev-lang/rust/files/0002-compiler-Change-LLVM-targets.patch
+	#so, commented out:
+	#eapply "${FILESDIR}"/0002-compiler-Change-LLVM-targets.patch
 
 	local rust_target="" rust_targets="" arch_cflags
 
@@ -253,6 +257,7 @@ src_unpack() {
 		thin-lto =  $(toml_usex system-llvm)
 		release-debuginfo = $(toml_usex debug)
 		assertions = $(toml_usex debug)
+		ccache = "/usr/bin/ccache"
 		ninja = true
 		targets = "${LLVM_TARGETS// /;}"
 		experimental-targets = ""
@@ -287,10 +292,13 @@ src_unpack() {
 		vendor = false
 		extended = true
 		tools = [${tools}]
+		# Verbosity level: 0 == not verbose, 1 == verbose, 2 == very verbose
 		verbose = 2
 		sanitizers = false
 		profiler = $(toml_usex profiler)
 		cargo-native-static = false
+		low-priority = true
+		print-step-timings = true
 		local-rebuild = false
 
 		[install]
@@ -306,14 +314,26 @@ src_unpack() {
 		codegen-units-std = 1
 		optimize = true
 		debug = $(toml_usex debug)
-		debug-assertions = $(toml_usex debug)
-		debug-assertions-std = $(toml_usex debug)
-		debuginfo-level = $(usex debug 2 0)
-		debuginfo-level-rustc = $(usex debug 2 0)
-		debuginfo-level-std = $(usex debug 2 0)
-		debuginfo-level-tools = $(usex debug 2 0)
-		debuginfo-level-tests = 0
-		backtrace = $(toml_usex debug)
+		#debug-assertions = $(toml_usex debug)
+		debug-assertions = true
+		#debug-assertions-std = $(toml_usex debug)
+		debug-assertions-std = true
+		#debuginfo-level = $(usex debug 2 0)
+		#debuginfo-level-rustc = $(usex debug 2 0)
+		#debuginfo-level-std = $(usex debug 2 0)
+		#debuginfo-level-tools = $(usex debug 2 0)
+		#debuginfo-level-tests = 0
+		#0: No debug information is generated. This results in the smallest binary size but provides no debugging support.
+		#1: Generate minimal debug information, usually limited to function names and line numbers. This is useful for basic debugging but doesn't include variable names or type information.
+		#2: Generate full debug information, including variable names, type information, and other metadata. This is most helpful for comprehensive debugging and profiling but can significantly increase binary size.
+		debuginfo-level = 2
+		debuginfo-level-rustc = 2
+		debuginfo-level-std = 2
+		debuginfo-level-tools = 2
+		debuginfo-level-tests = 2
+
+		#backtrace = $(toml_usex debug)
+		backtrace = true
 		incremental = false
 		default-linker = "$(tc-getCC)"
 		parallel-compiler = $(toml_usex parallel-compiler)
@@ -335,7 +355,15 @@ src_unpack() {
 
 		[dist]
 		src-tarball = false
-		compression-formats = ["xz"]
+		#compression-formats = ["xz"]
+		# Available options: fast, balanced, best, no-op
+		# no-op is auto-chosen on ./x.py install due to https://github.com/rust-lang/rust/commit/26cd5d862e22c013ecb3396b177d3af80e95c836 ) ie. on gentoo
+		compression-profile = "fast"
+		compression-formats = ["none"]
+		#patch made!'none' here means .tar only! or don't set any value here! oldcomments://nvm patch not made! //keep 'gz' here so that 0600_fabricate_neutering_try2_just_tar_not_gz_or_xz_for_rust_1_52_0.patch applies neatly
+		#doneTODO: try compression-formats 'cat'(not valid!) or just make sure it doesn't use any! However list must not be empty! as per https://github.com/rust-lang/rust/blob/abf3ec5b3353be973b18269fcdda76a59743f235/config.toml.example#L696 see: https://github.com/rust-lang/rust-installer/issues/110
+		#missing-tools = false
+		#^ this won't work (either with =false or =true), it fails to compile miri even though USE=-miri due to /var/db/repos/gentoo/profiles/base/package.use.mask:30 so it has to be =true
 	_EOF_
 
 	for v in $(multilib_get_enabled_abi_pairs); do
