@@ -5,6 +5,8 @@
 EAPI=6
 
 #inherit eutils #this got deprecated in 2024, also see: https://archives.gentoo.org/gentoo-dev/message/679aa86ac1ed6e043a12138e1ffa6343
+inherit toolchain-funcs #for tc-getCC() which eutils.eclass has before
+
 if [ ${PV} = 9999 ]; then
 	inherit git-r3
 	#EGIT_REPO_URI="git://git.code.sf.net/p/{PN}/code"

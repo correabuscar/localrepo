@@ -3,12 +3,12 @@ DEPEND=dev-libs/elfutils lzo? ( dev-libs/lzo ) snappy? ( app-arch/snappy ) >=dev
 DESCRIPTION=minimize and compress /proc/vmcore for use with crash
 EAPI=6
 HOMEPAGE=http://sourceforge.net/projects/makedumpfile/
-INHERIT=git-r3
+INHERIT=toolchain-funcs git-r3
 IUSE=lzo snappy static
 KEYWORDS=~amd64
 LICENSE=GPL-2+
 PROPERTIES=live
 RDEPEND=dev-libs/elfutils lzo? ( dev-libs/lzo ) snappy? ( app-arch/snappy )
 SLOT=0
-_eclasses_=git-r3	fbb2889c81f3a05910c1524db69425c1
-_md5_=f1dac0bb42557e0578aa286c19ea6ae8
+_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	git-r3	fbb2889c81f3a05910c1524db69425c1
+_md5_=9f164f5760bb64cdc1a16c06d3eabb8f
