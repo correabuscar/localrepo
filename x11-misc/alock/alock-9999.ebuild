@@ -2,7 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit autotools eutils toolchain-funcs git-r3
+inherit autotools toolchain-funcs git-r3
+#inherit eutils #this got deprecated in 2024, also see: https://archives.gentoo.org/gentoo-dev/message/679aa86ac1ed6e043a12138e1ffa6343
 
 # we need this since there are no tagged releases yet
 DESCRIPTION="Simple screen lock application for X server"
