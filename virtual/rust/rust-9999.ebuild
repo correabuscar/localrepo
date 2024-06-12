@@ -17,8 +17,14 @@ SLOT="0/llvm-18"
 
 #KEYWORDS=""
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="rustfmt"
+#IUSE="rustfmt"
+IUSE="profiler rustfmt"
 
 BDEPEND=""
-#TODO: do we need 'profile' too from: rust-1.76.0.ebuild
-RDEPEND="~dev-lang/rust-${PV}[rustfmt?,${MULTILIB_USEDEP}]"
+#sureTODO: do we need 'profile' too from: rust-1.76.0.ebuild
+#RDEPEND="~dev-lang/rust-${PV}[rustfmt?,${MULTILIB_USEDEP}]"
+#TODO: do we need rust-bin? allowing for now
+RDEPEND="|| (
+	~dev-lang/rust-bin-${PV}[profiler?,rustfmt?,${MULTILIB_USEDEP}]
+	~dev-lang/rust-${PV}[profiler?,rustfmt?,${MULTILIB_USEDEP}]
+)"

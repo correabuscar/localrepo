@@ -13,6 +13,11 @@ inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 SLOT="git"
 KEYWORDS="~amd64"
 
+#TODO: do I need these:
+#CHOST_amd64=x86_64-unknown-linux-gnu
+#CHOST_x86=i686-unknown-linux-gnu
+#CHOST_arm64=aarch64-unknown-linux-gnu
+
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 
