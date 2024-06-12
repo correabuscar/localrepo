@@ -268,206 +268,206 @@ src_unpack() {
 
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
-		changelog-seen = 2
-		# see what each of these mean at: https://github.com/rust-lang/rust/blob/master/config.example.toml
-		[llvm]
-		download-ci-llvm = false
-		optimize = true
-		thin-lto =  $(toml_usex system-llvm)
-		#release-debuginfo = $(toml_usex debug)
-		release-debuginfo = true
-		assertions = $(toml_usex debug)
-		ccache = "/usr/bin/ccache"
-		ninja = true
-		targets = "${LLVM_TARGETS// /;}"
-		experimental-targets = ""
-		link-jobs = $(makeopts_jobs)
-		link-shared =  $(toml_usex system-llvm)
-		$(if is_libcxx_linked; then
-		  # https://bugs.gentoo.org/732632
-		  echo "use-libcxx = true"
-		  echo "static-libstdcpp = false"
-		  else
-			echo "static-libstdcpp = $(usex system-llvm false true)"
-			echo "use-libcxx = false"
-		fi)
-		$(case "${rust_target}" in
-		  i586-*-linux-*)
-			# https://github.com/rust-lang/rust/issues/93059
-			echo 'cflags = "-fcf-protection=none"'
-			echo 'cxxflags = "-fcf-protection=none"'
-			echo 'ldflags = "-fcf-protection=none"'
-			;;
-		  *)
-			;;
-		esac)
-		enable-warnings = false
+changelog-seen = 2
+# see what each of these mean at: https://github.com/rust-lang/rust/blob/master/config.example.toml
+[llvm]
+download-ci-llvm = false
+optimize = true
+thin-lto =  $(toml_usex system-llvm)
+#release-debuginfo = $(toml_usex debug)
+release-debuginfo = true
+assertions = $(toml_usex debug)
+ccache = "/usr/bin/ccache"
+ninja = true
+targets = "${LLVM_TARGETS// /;}"
+experimental-targets = ""
+link-jobs = $(makeopts_jobs)
+link-shared =  $(toml_usex system-llvm)
+$(if is_libcxx_linked; then
+  # https://bugs.gentoo.org/732632
+  echo "use-libcxx = true"
+  echo "static-libstdcpp = false"
+  else
+	echo "static-libstdcpp = $(usex system-llvm false true)"
+	echo "use-libcxx = false"
+fi)
+$(case "${rust_target}" in
+  i586-*-linux-*)
+	# https://github.com/rust-lang/rust/issues/93059
+	echo 'cflags = "-fcf-protection=none"'
+	echo 'cxxflags = "-fcf-protection=none"'
+	echo 'ldflags = "-fcf-protection=none"'
+	;;
+  *)
+	;;
+esac)
+enable-warnings = false
 
-		[llvm.build-config]
-		CMAKE_VERBOSE_MAKEFILE = "ON"
-		$(if ! tc-is-cross-compiler; then
-		  # When cross-compiling, LLVM is compiled twice, once for host and
-		  # once for target.  Unfortunately, this build configuration applies
-		  # to both, which means any flags applicable to one target but not
-		  # the other will break.  Conditionally disable respecting user
-		  # flags when cross-compiling.
-		  echo "CMAKE_C_FLAGS_${cm_btype} = \"${CFLAGS}\""
-		  echo "CMAKE_CXX_FLAGS_${cm_btype} = \"${CXXFLAGS}\""
-		  echo "CMAKE_EXE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
-		  echo "CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
-		  echo "CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
-		  echo "CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = \"${ARFLAGS}\""
-		fi)
-		#CMAKE_C_FLAGS_${cm_btype} = "${CFLAGS}"
-		#CMAKE_CXX_FLAGS_${cm_btype} = "${CXXFLAGS}"
-		#CMAKE_EXE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		#CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		#CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
-		#CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = "${ARFLAGS}"
+[llvm.build-config]
+CMAKE_VERBOSE_MAKEFILE = "ON"
+$(if ! tc-is-cross-compiler; then
+  # When cross-compiling, LLVM is compiled twice, once for host and
+  # once for target.  Unfortunately, this build configuration applies
+  # to both, which means any flags applicable to one target but not
+  # the other will break.  Conditionally disable respecting user
+  # flags when cross-compiling.
+  echo "CMAKE_C_FLAGS_${cm_btype} = \"${CFLAGS}\""
+  echo "CMAKE_CXX_FLAGS_${cm_btype} = \"${CXXFLAGS}\""
+  echo "CMAKE_EXE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+  echo "CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+  echo "CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = \"${LDFLAGS}\""
+  echo "CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = \"${ARFLAGS}\""
+fi)
+#CMAKE_C_FLAGS_${cm_btype} = "${CFLAGS}"
+#CMAKE_CXX_FLAGS_${cm_btype} = "${CXXFLAGS}"
+#CMAKE_EXE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+#CMAKE_MODULE_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+#CMAKE_SHARED_LINKER_FLAGS_${cm_btype} = "${LDFLAGS}"
+#CMAKE_STATIC_LINKER_FLAGS_${cm_btype} = "${ARFLAGS}"
 
-		[build]
-		build-stage = 2
-		test-stage = 2
-		doc-stage = 2
-		# Build triple for the pre-compiled snapshot compiler. If `rustc` is set, this must match its host
-		# triple (see `rustc --version --verbose`; cross-compiling the rust build system itself is NOT
-		# supported). If `rustc` is unset, this must be a platform with pre-compiled host tools
-		# (https://doc.rust-lang.org/nightly/rustc/platform-support.html). The current platform must be
-		# able to run binaries of this build triple.
-		#
-		# If `rustc` is present in path, this defaults to the host it was compiled for.
-		# Otherwise, `x.py` will try to infer it from the output of `uname`.
-		# If `uname` is not found in PATH, we assume this is `x86_64-pc-windows-msvc`.
-		# This may be changed in the future.
-		#build = "x86_64-unknown-linux-gnu" (as an example)
-		build = "${rust_target}"
+[build]
+build-stage = 2
+test-stage = 2
+doc-stage = 2
+# Build triple for the pre-compiled snapshot compiler. If `rustc` is set, this must match its host
+# triple (see `rustc --version --verbose`; cross-compiling the rust build system itself is NOT
+# supported). If `rustc` is unset, this must be a platform with pre-compiled host tools
+# (https://doc.rust-lang.org/nightly/rustc/platform-support.html). The current platform must be
+# able to run binaries of this build triple.
+#
+# If `rustc` is present in path, this defaults to the host it was compiled for.
+# Otherwise, `x.py` will try to infer it from the output of `uname`.
+# If `uname` is not found in PATH, we assume this is `x86_64-pc-windows-msvc`.
+# This may be changed in the future.
+#build = "x86_64-unknown-linux-gnu" (as an example)
+build = "${rust_target}"
 
-		# Which triples to produce a compiler toolchain for. Each of these triples will be bootstrapped from
-		# the build triple themselves. In other words, this is the list of triples for which to build a
-		# compiler that can RUN on that triple.
-		#
-		# Defaults to just the `build` triple.
-		#host = [build.build] (list of triples)
-		host = ["${rust_target}"]
+# Which triples to produce a compiler toolchain for. Each of these triples will be bootstrapped from
+# the build triple themselves. In other words, this is the list of triples for which to build a
+# compiler that can RUN on that triple.
+#
+# Defaults to just the `build` triple.
+#host = [build.build] (list of triples)
+host = ["${rust_target}"]
 
-		# Which triples to build libraries (core/alloc/std/test/proc_macro) for. Each of these triples will
-		# be bootstrapped from the build triple themselves. In other words, this is the list of triples for
-		# which to build a library that can CROSS-COMPILE to that triple.
-		#
-		# Defaults to `host`. If you set this explicitly, you likely want to add all
-		# host triples to this list as well in order for those host toolchains to be
-		# able to compile programs for their native target.
-		#target = build.host (list of triples)
-		target = [${rust_targets}]
+# Which triples to build libraries (core/alloc/std/test/proc_macro) for. Each of these triples will
+# be bootstrapped from the build triple themselves. In other words, this is the list of triples for
+# which to build a library that can CROSS-COMPILE to that triple.
+#
+# Defaults to `host`. If you set this explicitly, you likely want to add all
+# host triples to this list as well in order for those host toolchains to be
+# able to compile programs for their native target.
+#target = build.host (list of triples)
+target = [${rust_targets}]
 
-		docs = $(toml_usex doc)
-		compiler-docs = $(toml_usex doc)
-		#
-		submodules = false
-		#
-		python = "${EPYTHON}"
-		locked-deps = false
-		#TODO: had this to true ^ locked-deps
-		vendor = false
-		extended = true
-		tools = [${tools}]
-		# Verbosity level: 0 == not verbose, 1 == verbose, 2 == very verbose
-		verbose = 2
-		sanitizers = false
-		profiler = $(toml_usex profiler)
-		cargo-native-static = false
-		low-priority = true
-		print-step-timings = true
-		# Indicates that a local rebuild is occurring instead of a full bootstrap,
-		# essentially skipping stage0 as the local compiler is recompiling itself again.
-		# Useful for modifying only the stage2 compiler without having to pass `--keep-stage 0` each time.
-		local-rebuild = false
+docs = $(toml_usex doc)
+compiler-docs = $(toml_usex doc)
+#
+submodules = false
+#
+python = "${EPYTHON}"
+locked-deps = false
+#TODO: had this to true ^ locked-deps
+vendor = false
+extended = true
+tools = [${tools}]
+# Verbosity level: 0 == not verbose, 1 == verbose, 2 == very verbose
+verbose = 2
+sanitizers = false
+profiler = $(toml_usex profiler)
+cargo-native-static = false
+low-priority = true
+print-step-timings = true
+# Indicates that a local rebuild is occurring instead of a full bootstrap,
+# essentially skipping stage0 as the local compiler is recompiling itself again.
+# Useful for modifying only the stage2 compiler without having to pass `--keep-stage 0` each time.
+local-rebuild = false
 
-		[install]
-		prefix = "${EPREFIX}/usr/lib/${PN}/${PV}"
-		sysconfdir = "etc"
-		docdir = "share/doc/rust"
-		bindir = "bin"
-		libdir = "lib"
-		mandir = "share/man"
+[install]
+prefix = "${EPREFIX}/usr/lib/${PN}/${PV}"
+sysconfdir = "etc"
+docdir = "share/doc/rust"
+bindir = "bin"
+libdir = "lib"
+mandir = "share/man"
 
-		[rust]
-		# https://github.com/rust-lang/rust/issues/54872
-		codegen-units-std = 1
-		optimize = true
-		debug = $(toml_usex debug)
-		#debug-assertions = $(toml_usex debug)
-		#debug-assertions = true
-		#XXX: ^ that's too crazy, I'm sure!
-		debug-assertions = false
+[rust]
+# https://github.com/rust-lang/rust/issues/54872
+codegen-units-std = 1
+optimize = true
+debug = $(toml_usex debug)
+#debug-assertions = $(toml_usex debug)
+#debug-assertions = true
+#XXX: ^ that's too crazy, I'm sure!
+debug-assertions = false
 
-		#debug-assertions-std = $(toml_usex debug)
-		debug-assertions-std = true
-		#debuginfo-level = $(usex debug 2 0)
-		#debuginfo-level-rustc = $(usex debug 2 0)
-		#debuginfo-level-std = $(usex debug 2 0)
-		#debuginfo-level-tools = $(usex debug 2 0)
-		#debuginfo-level-tests = 0
-		#0: No debug information is generated. This results in the smallest binary size but provides no debugging support.
-		#1: Generate minimal debug information, usually limited to function names and line numbers. This is useful for basic debugging but doesn't include variable names or type information.
-		#2: Generate full debug information, including variable names, type information, and other metadata. This is most helpful for comprehensive debugging and profiling but can significantly increase binary size.
-		debuginfo-level = 2
-		debuginfo-level-rustc = 2
-		debuginfo-level-std = 2
-		debuginfo-level-tools = 2
-		debuginfo-level-tests = 2
+#debug-assertions-std = $(toml_usex debug)
+debug-assertions-std = true
+#debuginfo-level = $(usex debug 2 0)
+#debuginfo-level-rustc = $(usex debug 2 0)
+#debuginfo-level-std = $(usex debug 2 0)
+#debuginfo-level-tools = $(usex debug 2 0)
+#debuginfo-level-tests = 0
+#0: No debug information is generated. This results in the smallest binary size but provides no debugging support.
+#1: Generate minimal debug information, usually limited to function names and line numbers. This is useful for basic debugging but doesn't include variable names or type information.
+#2: Generate full debug information, including variable names, type information, and other metadata. This is most helpful for comprehensive debugging and profiling but can significantly increase binary size.
+debuginfo-level = 2
+debuginfo-level-rustc = 2
+debuginfo-level-std = 2
+debuginfo-level-tools = 2
+debuginfo-level-tests = 2
 
-		# Whether or not `panic!`s generate backtraces (RUST_BACKTRACE)
-		#backtrace = $(toml_usex debug)
-		backtrace = true
+# Whether or not `panic!`s generate backtraces (RUST_BACKTRACE)
+#backtrace = $(toml_usex debug)
+backtrace = true
 
-		# Print backtrace on internal compiler errors during bootstrap
-		backtrace-on-ice = true
+# Print backtrace on internal compiler errors during bootstrap
+backtrace-on-ice = true
 
-		incremental = false
-		default-linker = "$(tc-getCC)"
-		parallel-compiler = $(toml_usex parallel-compiler)
-		channel = "nightly"
-		description = "gentoo"
-		rpath = false
+incremental = false
+default-linker = "$(tc-getCC)"
+parallel-compiler = $(toml_usex parallel-compiler)
+channel = "nightly"
+description = "gentoo"
+rpath = false
 
-		# Prints each test name as it is executed, to help debug issues in the test harness itself.
-		#verbose-tests = false
-		verbose-tests = true
+# Prints each test name as it is executed, to help debug issues in the test harness itself.
+#verbose-tests = false
+verbose-tests = true
 
-		# Flag indicating whether tests are compiled with optimizations (the -O flag).
-		optimize-tests = $(toml_usex !debug)
+# Flag indicating whether tests are compiled with optimizations (the -O flag).
+optimize-tests = $(toml_usex !debug)
 
-		# Flag indicating whether codegen tests will be run or not. If you get an error
-		# saying that the FileCheck executable is missing, you may want to disable this.
-		# Also see the target's llvm-filecheck option.
-		#codegen-tests = true
-		codegen-tests = $(toml_usex debug)
+# Flag indicating whether codegen tests will be run or not. If you get an error
+# saying that the FileCheck executable is missing, you may want to disable this.
+# Also see the target's llvm-filecheck option.
+#codegen-tests = true
+codegen-tests = $(toml_usex debug)
 
-		# Whether to create a source tarball by default when running `x dist`.
-		# You can still build a source tarball when this is disabled by explicitly passing `x dist rustc-src`.
-		dist-src = $(toml_usex debug)
+# Whether to create a source tarball by default when running `x dist`.
+# You can still build a source tarball when this is disabled by explicitly passing `x dist rustc-src`.
+dist-src = $(toml_usex debug)
 
-		remap-debuginfo = $(toml_usex debug)
-		lld = $(usex system-llvm false $(toml_usex wasm))
-		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
-		# https://github.com/rust-lang/rust/issues/74976
-		# https://github.com/rust-lang/rust/issues/76526
-		deny-warnings = $(usex wasm $(usex doc false true) true)
-		jemalloc = false
-		llvm-libunwind = "$(usex system-llvm system)"
+remap-debuginfo = $(toml_usex debug)
+lld = $(usex system-llvm false $(toml_usex wasm))
+# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
+# https://github.com/rust-lang/rust/issues/74976
+# https://github.com/rust-lang/rust/issues/76526
+deny-warnings = $(usex wasm $(usex doc false true) true)
+jemalloc = false
+llvm-libunwind = "$(usex system-llvm system)"
 
-		[dist]
-		src-tarball = false
-		#compression-formats = ["xz"]
-		# Available options: fast, balanced, best, no-op
-		# no-op is auto-chosen on ./x.py install due to https://github.com/rust-lang/rust/commit/26cd5d862e22c013ecb3396b177d3af80e95c836 ) ie. on gentoo
-		compression-profile = "fast"
-		compression-formats = ["none"]
-		#patch made!'none' here means .tar only! or don't set any value here! oldcomments://nvm patch not made! //keep 'gz' here so that 0600_fabricate_neutering_try2_just_tar_not_gz_or_xz_for_rust_1_52_0.patch applies neatly
-		#doneTODO: try compression-formats 'cat'(not valid!) or just make sure it doesn't use any! However list must not be empty! as per https://github.com/rust-lang/rust/blob/abf3ec5b3353be973b18269fcdda76a59743f235/config.toml.example#L696 see: https://github.com/rust-lang/rust-installer/issues/110
-		#missing-tools = false
-		#^ this won't work (either with =false or =true), it fails to compile miri even though USE=-miri due to /var/db/repos/gentoo/profiles/base/package.use.mask:30 so it has to be =true
+[dist]
+src-tarball = false
+#compression-formats = ["xz"]
+# Available options: fast, balanced, best, no-op
+# no-op is auto-chosen on ./x.py install due to https://github.com/rust-lang/rust/commit/26cd5d862e22c013ecb3396b177d3af80e95c836 ) ie. on gentoo
+compression-profile = "fast"
+compression-formats = ["none"]
+#patch made!'none' here means .tar only! or don't set any value here! oldcomments://nvm patch not made! //keep 'gz' here so that 0600_fabricate_neutering_try2_just_tar_not_gz_or_xz_for_rust_1_52_0.patch applies neatly
+#doneTODO: try compression-formats 'cat'(not valid!) or just make sure it doesn't use any! However list must not be empty! as per https://github.com/rust-lang/rust/blob/abf3ec5b3353be973b18269fcdda76a59743f235/config.toml.example#L696 see: https://github.com/rust-lang/rust-installer/issues/110
+#missing-tools = false
+#^ this won't work (either with =false or =true), it fails to compile miri even though USE=-miri due to /var/db/repos/gentoo/profiles/base/package.use.mask:30 so it has to be =true
 	_EOF_
 
 	for v in $(multilib_get_enabled_abi_pairs); do
