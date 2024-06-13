@@ -523,7 +523,7 @@ src_configure() {
 	done
 	if use wasm; then
 		wasm_target="wasm32-unknown-unknown"
-		export CFLAGS_${wasm_target//-/_}="$(filter-flags '-mcpu*' '-march*' '-mtune*'; echo "$CFLAGS")"
+		export CFLAGS_${wasm_target//-/_}="$(filter-flags '-mcpu*' '-march*' '-mtune*' '-fvar-tracking-assignments' '-ftrack-macro-expansion=2' '-flifetime-dse=1' '-fno-schedule-insns2' '-frecord-gcc-switches'; echo "$CFLAGS")"
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
 			linker = "$(usex system-llvm lld rust-lld)"
