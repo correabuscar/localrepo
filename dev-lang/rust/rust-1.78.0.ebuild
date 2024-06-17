@@ -446,8 +446,12 @@ src_configure() {
 		optimize = true
 		debug = $(toml_usex debug)
 		debug-assertions = $(toml_usex debug)
-		debug-assertions-std = $(toml_usex debug)
+		#debug-assertions-std = $(toml_usex debug)
+		debug-assertions-std = true
 
+		#0: No debug information is generated. This results in the smallest binary size but provides no debugging support.
+		#1: Generate minimal debug information, usually limited to function names and line numbers. This is useful for basic debugging but doesn't include variable names or type information.
+		#2: Generate full debug information, including variable names, type information, and other metadata. This is most helpful for comprehensive debugging and profiling but can significantly increase binary size.
 		debuginfo-level = 2
 		debuginfo-level-rustc = 2
 		debuginfo-level-std = 2
@@ -457,9 +461,12 @@ src_configure() {
 		#debuginfo-level-std = $(usex debug 2 0)
 		#debuginfo-level-tools = $(usex debug 2 0)
 
-		debuginfo-level-tests = 0
+		#debuginfo-level-tests = 0
+		debuginfo-level-tests = 2
 		backtrace = true
-		incremental = false
+		#incremental = false
+		incremental = true
+		#^trying
 		$(if ! tc-is-cross-compiler; then
 			echo "default-linker = \"$(tc-getCC)\""
 		fi)
