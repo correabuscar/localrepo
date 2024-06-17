@@ -231,7 +231,7 @@ pre_build_checks() {
 	M=$(( $(usex system-bootstrap 0 1024) + ${M} ))
 	M=$(( $(usex doc 256 0) + ${M} ))
 	#M=$(( 61000 + ${M} )) #takes 61G so to be sure add wtw else they think it would take, for crazy safety. Well this is 74504MB on 17th of June 2024, but it only ever used 60G(the used via `df -h`), so 61000 should do.
-	M=$(( 62464 )) #takes 61G, make it GiB for safety.
+	M=$(( (61+1)*1024 )) #takes 61GiB (via `df -h` so powers of 1024), add +1GiB for safety.
 	#current ebuild (29nov2020) took 60mins to compile (mitigations=2) and 60G in /var/tmp/portage (oddly 610M left even tho it was a 64G ext4 zram
 	CHECKREQS_DISK_BUILD=${M}M check-reqs_pkg_${EBUILD_PHASE}
 }
