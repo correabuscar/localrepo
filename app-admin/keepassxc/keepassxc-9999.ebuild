@@ -31,6 +31,7 @@ IUSE="autotype browser ccache doc keeshare +network test yubikey"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
+	app-crypt/argon2
 	dev-libs/botan:2
 	dev-qt/qtconcurrent:5
 	dev-qt/qtcore:5
