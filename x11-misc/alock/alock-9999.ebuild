@@ -1,7 +1,7 @@
-# Copyright 2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 inherit autotools toolchain-funcs git-r3
 #inherit eutils #this got deprecated in 2024, also see: https://archives.gentoo.org/gentoo-dev/message/679aa86ac1ed6e043a12138e1ffa6343
 
@@ -18,7 +18,9 @@ LICENSE="MIT"
 SLOT="0"
 IUSE="debug imlib pam xbacklight"
 
-DEPEND="dev-libs/libgcrypt:0
+#DEPEND="dev-libs/libgcrypt:0
+DEPEND="
+	virtual/libcrypt
 	x11-libs/libX11
 	x11-libs/libXau
 	x11-libs/libxcb
@@ -59,6 +61,8 @@ src_configure() {
 }
 
 src_compile() {
+	# xmlto isn't required, so set to 'true' as dummy program
+	# alock.1 is suitable for a manpage
 	emake XMLTO=true
 }
 
@@ -68,6 +72,7 @@ src_install() {
 	doman doc/alock.1
 
 	if ! use pam; then
+		# Sets suid so alock can correctly work with shadow
 		fperms 4755 /usr/bin/alock
 	fi
 }

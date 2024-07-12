@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header $
 
-EAPI=6
+EAPI=7
 
 #inherit eutils #this got deprecated in 2024, also see: https://archives.gentoo.org/gentoo-dev/message/679aa86ac1ed6e043a12138e1ffa6343
 inherit toolchain-funcs #for tc-getCC() which eutils.eclass has before
