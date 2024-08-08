@@ -1,10 +1,136 @@
---- foofirefox-128.0.ebuild
-+++ firefox-128.0.3.ebuild
-@@ -72,6 +72,7 @@
- REQUIRED_USE="|| ( X wayland )
- 	debug? ( !system-av1 )
- 	pgo? ( lto )
-+	wayland? ( dbus )
- 	wifi? ( dbus )"
+--- firefox-128.0.3.ebuild
++++ firefox-129.0.ebuild
+@@ -50,16 +50,14 @@
+ 	https://dev.gentoo.org/~juippis/mozilla/patchsets/${FIREFOX_PATCHSET}
+ )
 
- FF_ONLY_DEPEND="!www-client/firefox:0
+-SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
+-	${PATCH_URIS[@]}"
+-
+ DESCRIPTION="Firefox Web Browser"
+ HOMEPAGE="https://www.mozilla.com/firefox"
+-
+-KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
+-
+-SLOT="rapid"
++SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
++	${PATCH_URIS[@]}"
++S="${WORKDIR}/${PN}-${PV%_*}"
+ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
++SLOT="rapid"
++KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
+
+ IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+ IUSE+=" jack +jumbo-build libproxy lto openh264 pgo pulseaudio sndio selinux"
+@@ -117,7 +115,7 @@
+ 	dev-libs/expat
+ 	dev-libs/glib:2
+ 	dev-libs/libffi:=
+-	>=dev-libs/nss-3.101
++	>=dev-libs/nss-3.102
+ 	>=dev-libs/nspr-4.35
+ 	media-libs/alsa-lib
+ 	media-libs/fontconfig
+@@ -194,8 +192,6 @@
+ 		x11-libs/libSM
+ 	)"
+
+-S="${WORKDIR}/${PN}-${PV%_*}"
+-
+ # Allow MOZ_GMP_PLUGIN_LIST to be set in an eclass or
+ # overridden in the enviromnent (advanced hackers only)
+ if [[ -z "${MOZ_GMP_PLUGIN_LIST+set}" ]] ; then
+@@ -221,7 +217,8 @@
+
+ 		if use pgo ; then
+ 			if ! has_version -b "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*[profile]" ; then
+-				einfo "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*[profile] is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
++				einfo "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*[profile] is missing!" >&2
++				einfo "Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
+ 				return 1
+ 			fi
+ 		fi
+@@ -654,7 +651,8 @@
+ 		"${S}"/third_party/libwebrtc/build/toolchain/get_cpu_count.py || die "Failed sedding multiprocessing.cpu_count"
+
+ 	sed -i -e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
+-		"${S}"/third_party/libwebrtc/build/toolchain/get_concurrent_links.py || die "Failed sedding multiprocessing.cpu_count"
++		"${S}"/third_party/libwebrtc/build/toolchain/get_concurrent_links.py ||
++			die "Failed sedding multiprocessing.cpu_count"
+
+ 	sed -i -e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
+ 		"${S}"/third_party/python/gyp/pylib/gyp/input.py || die "Failed sedding multiprocessing.cpu_count"
+@@ -681,7 +679,6 @@
+
+ 	# Clear checksums from cargo crates we've manually patched.
+ 	# moz_clear_vendor_checksums xyz
+-	moz_clear_vendor_checksums proc-macro2
+
+ 	# Respect choice for "jumbo-build"
+ 	# Changing the value for FILES_PER_UNIFIED_FILE may not work, see #905431
+@@ -693,10 +690,12 @@
+ 		elog "if that fails try -jumbo-build before opening a bug report."
+ 		elog ""
+
+-		sed -i -e "s/\"FILES_PER_UNIFIED_FILE\", 16/\"FILES_PER_UNIFIED_FILE\", "${my_files_per_unified_file}"/" python/mozbuild/mozbuild/frontend/data.py ||
+-			die "Failed to adjust FILES_PER_UNIFIED_FILE in python/mozbuild/mozbuild/frontend/data.py"
+-		sed -i -e "s/FILES_PER_UNIFIED_FILE = 6/FILES_PER_UNIFIED_FILE = "${my_files_per_unified_file}"/" js/src/moz.build ||
+-			die "Failed to adjust FILES_PER_UNIFIED_FILE in js/src/moz.build"
++		sed -i -e "s/\"FILES_PER_UNIFIED_FILE\", 16/\"FILES_PER_UNIFIED_FILE\", "${my_files_per_unified_file}"/" \
++			python/mozbuild/mozbuild/frontend/data.py ||
++				die "Failed to adjust FILES_PER_UNIFIED_FILE in python/mozbuild/mozbuild/frontend/data.py"
++		sed -i -e "s/FILES_PER_UNIFIED_FILE = 6/FILES_PER_UNIFIED_FILE = "${my_files_per_unified_file}"/" \
++			js/src/moz.build ||
++				die "Failed to adjust FILES_PER_UNIFIED_FILE in js/src/moz.build"
+ 	fi
+
+ 	# Create build dir
+@@ -1353,7 +1352,7 @@
+
+ 	# Set dictionary path to use system hunspell
+ 	cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set spellchecker.dictionary_path pref"
+-	pref("spellchecker.dictionary_path",       "${EPREFIX}/usr/share/myspell");
++	pref("spellchecker.dictionary_path", "${EPREFIX}/usr/share/myspell");
+ 	EOF
+
+ 	# Force hwaccel prefs if USE=hwaccel is enabled
+@@ -1364,11 +1363,11 @@
+
+ 		if use wayland; then
+ 			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set hwaccel wayland prefs"
+-			pref("gfx.x11-egl.force-enabled",          false);
++			pref("gfx.x11-egl.force-enabled", false);
+ 			EOF
+ 		else
+ 			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set hwaccel x11 prefs"
+-			pref("gfx.x11-egl.force-enabled",          true);
++			pref("gfx.x11-egl.force-enabled", true);
+ 			EOF
+ 		fi
+
+@@ -1388,7 +1387,7 @@
+ 		for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+ 			einfo "Disabling auto-update for ${plugin} plugin ..."
+ 			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to disable autoupdate for ${plugin} media plugin"
+-			pref("media.${plugin}.autoupdate",   false);
++			pref("media.${plugin}.autoupdate", false);
+ 			EOF
+ 		done
+ 	fi
+@@ -1400,6 +1399,16 @@
+ 		EOF
+ 	fi
+
++	# Add telemetry config prefs, just in case something happens in future and telemetry build
++	# options stop working.
++	if ! use telemetry ; then
++		cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set telemetry prefs"
++		sticky_pref("toolkit.telemetry.dap_enabled", false);
++		pref("toolkit.telemetry.dap_helper", "");
++		pref("toolkit.telemetry.dap_leader", "");
++		EOF
++	fi
++
+ 	# Install language packs
+ 	local langpacks=( $(find "${WORKDIR}/language_packs" -type f -name '*.xpi') )
+ 	if [[ -n "${langpacks}" ]] ; then
