@@ -1954,6 +1954,27 @@ user_pref("network.cookie.prefsMigrated", true); //FIXME: maybe I shouldn't set 
 user_pref("network.dnsCacheEntries", 0);
 user_pref("network.dnsCacheExpiration", 0);
 user_pref("network.dns.disableIPv6", true);
+user_pref("network.dns.native_https_query", false); //default 'true', it will send 1-2 [HTTPS] (like [A] or [AAAA]) dns queries per second to eg. ideogram.ai and dnsmasq won't cache these it will forward them always! thus spammy! I don't know the security implications of having this off, but having it on is unacceptable (maybe the cache settings above cause firefox to send so many requests?)
+// decided against sending this upstream due to my other settings like cache entries being 0 so it might not affect others:
+// If `network.dns.native_https_query` is `true` which is by default, in at least firefox 129.0, on linux/Gentoo, for me, then if you're also using `dnsmasq` as your target DNS server that firefox talks to, then `dnsmasq` (`version 2.90`) won't cache those dns queries that are of `[HTTPS]` (eg. instead of `[A]` or `[AAAA]`) type. But setting this to `false` will prevent firefox from sending those `[HTTPS]` queries. You can see firefox spam a lot of those if you're using `ideogram.ai` website for example.
+//
+//Looks something like this for each request (for me it's 1-2 of these requests per second):
+//```
+//Aug 13 18:05:19 dnsmasq[31589]: 544 127.0.0.1/47963 query[HTTPS] ideogram.ai from 127.0.0.1
+//Aug 13 18:05:19 dnsmasq[31589]: 544 127.0.0.1/47963 forwarded ideogram.ai to 45.90.30.0
+//Aug 13 18:05:19 dnsmasq[31589]: 544 127.0.0.1/47963 reply ideogram.ai is <HTTPS>
+//```
+//
+//but if `false`, then it's just one caching the `[A]` and doesn't spew any `[HTTPS]` ones:
+//```
+//Aug 13 18:09:54 dnsmasq[31589]: 732 127.0.0.1/35181 query[A] ideogram.ai from 127.0.0.1
+//Aug 13 18:09:54 dnsmasq[31589]: 732 127.0.0.1/35181 cached ideogram.ai is 172.64.144.85
+//Aug 13 18:09:54 dnsmasq[31589]: 732 127.0.0.1/35181 cached ideogram.ai is 104.18.43.171
+//```
+//
+//and since the `[A]` is cached, it can go minutes without even re-requesting another one, which kinda seems like it's cached inside firefox too.
+//
+//
 //user_pref("network.http.sendSecureXSiteReferrer", false); //this pref is gone: https://bugzilla.mozilla.org/show_bug.cgi?id=1308725#c2 https://github.com/schomery/privacy-settings/issues/72
 //user_pref("network.predictor.cleaned-up", true);//not needed, it will clean some old files one time per profile, if false(aka default) - then sets it to true.
 user_pref("network.tcp.keepalive.enabled", true);
