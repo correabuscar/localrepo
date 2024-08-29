@@ -12,3 +12,6 @@ https://r2---sn-4g5lznlz.gvt1.com/edgedl/android/studio/ide-zips/2021.2.1.15/and
 
 =======
 find if new ebuilds are existing on https://gpo.zugaina.org/dev-util/android-studio
+
+for the 9999 variant, it's this: https://data.gpo.zugaina.org/9999/dev-util/android-studio/
+
